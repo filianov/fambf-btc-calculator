@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FAMBF — Калькулятор продукта с защитой капитала (USDT) + участие в росте BTC</title>
+<meta name="description" content="Хедж-калькулятор структурного продукта: 100% (или частичная) защита тела в USDT плюс участие в росте BTC. Расчёт участия, маржи и сценариев. Разработано FAMBF." />
+<style>
+  :root{
+    --ink:#0E1217; --ink2:#161B22; --paper:#F4F6F8; --card:#FFFFFF;
+    --line:#E2E6EC; --line2:#EEF1F5; --muted:#697586; --text:#161B22;
+    --accent:#0E9F6E; --accent2:#E4F5EE; --accent-d:#0B7E58;
+    --red:#E5484D; --red2:#FCE9E9; --amber:#B5791F; --amber2:#FBF1DE;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--text);font-family:var(--sans);line-height:1.45;font-size:15px}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  a{color:var(--accent-d);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px 64px}
+
+  /* brand bar */
+  .topbar{background:var(--ink);color:#EAF0F4}
+  .topbar-in{max-width:1080px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand svg{display:block;flex:none}
+  .brand-logo{height:26px;width:auto;display:block;background:#fff;border-radius:8px;padding:5px 9px}
+  .foot-logo{height:26px;width:auto;display:block;background:#fff;border-radius:8px;padding:5px 9px}
+  .brand-name{font-weight:800;letter-spacing:.14em;font-size:15px}
+  .brand-desc{font-size:11px;color:#9AA6B2;letter-spacing:.02em}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:12.5px}
+  .topbar-right .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;box-shadow:0 0 0 3px rgba(14,159,110,.18)}
+  .topbar-right a{color:#C7D0D9}
+  .sys{color:#9AA6B2}
+
+  /* hero */
+  header.hero{padding:26px 0 8px}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-d);font-weight:800}
+  h1{font-size:26px;line-height:1.14;margin:7px 0 8px;font-weight:800;letter-spacing:-.012em}
+  .lede{margin:0;color:var(--muted);font-size:14px;max-width:70ch}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:600}
+  .chip i{font-style:normal;color:var(--muted);font-weight:500;margin-left:5px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 16px 18px;margin-top:14px}
+  .card-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;
+    margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line2)}
+
+  /* packages */
+  .pkgs-lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:22px 0 9px}
+  .pkgs-lbl span{text-transform:none;letter-spacing:0;font-weight:500}
+  .pkgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:11px}
+  .pkg{display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;font:inherit;color:var(--text);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;transition:.12s}
+  .pkg:hover{border-color:var(--accent)}
+  .pkg.on{border:1.5px solid var(--accent);background:var(--accent2)}
+  .pkg-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .pkg.on .pkg-name{color:var(--accent-d)}
+  .pkg-meta{font-size:11.5px;color:var(--muted);font-weight:600}
+  .pkg-min{font-size:11px;color:var(--muted)}
+  .pkgs-state{font-size:11.5px;color:var(--muted);margin:10px 0 2px}
+  .pkgs-state b{color:var(--text);font-weight:700}
+
+  /* presets row */
+  .presets{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .presets-lbl{font-size:12px;color:var(--muted);font-weight:600;margin-right:2px}
+  .pill{font:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:var(--card);color:var(--text);transition:.12s}
+  .pill:hover{border-color:var(--accent)}
+  .pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* inputs */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px 20px}
+  .field-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:7px}
+  .field-label{font-size:12.5px;font-weight:600}
+  .field-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent-d);white-space:nowrap}
+  .field-val i{font-style:normal;color:var(--muted);font-weight:500}
+  .field-hint{font-size:11px;color:var(--muted);margin-top:5px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--line);outline:none;margin:3px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid #fff}
+  input[type=range]:focus-visible{box-shadow:0 0 0 3px var(--accent2)}
+  .numwrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+  .numwrap:focus-within{border-color:var(--accent)}
+  .numwrap input{font:inherit;font-family:var(--mono);font-size:15px;font-weight:700;border:0;outline:none;padding:9px 11px;width:100%;background:transparent;color:var(--text)}
+  .numunit{font-size:11px;color:var(--muted);padding:0 11px;font-weight:600;border-left:1px solid var(--line2);align-self:stretch;display:flex;align-items:center}
+  .toggle{font:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--muted)}
+  .toggle.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .capfield,.mktfield{grid-column:1/-1}
+  .mktfield .sub{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 18px;margin-top:10px}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-top:14px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 14px}
+  .stat-k{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800}
+  .stat-v{font-family:var(--mono);font-size:21px;font-weight:800;margin-top:5px;letter-spacing:-.01em}
+  .stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+  .stat.accent{border-color:var(--accent);background:var(--accent2)} .stat.accent .stat-v{color:var(--accent-d)}
+  .stat.good{border-color:#bfe3d0;background:var(--accent2)} .stat.good .stat-v{color:var(--accent-d)}
+  .stat.bad{border-color:#f1c4bd;background:var(--red2)} .stat.bad .stat-v{color:var(--red)}
+
+  .reality{border-radius:11px;padding:12px 15px;font-size:13px;margin-top:14px;line-height:1.5}
+  .reality.ok{background:var(--accent2);border:1px solid #bfe3d0}
+  .reality.warn{background:var(--amber2);border:1px solid #ecd6a8}
+  .reality b{font-weight:800}
+
+  /* chart */
+  .chart{width:100%;margin-top:4px}
+  .chart svg{width:100%;height:auto;display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12px;color:var(--muted);align-items:center}
+  .legend .sw{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .sw-a{background:var(--accent)} .sw-g{background:#9AA6B2}
+  .be{margin-left:auto;color:var(--accent-d);font-weight:600}
+
+  /* table */
+  .tablewrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:800;padding:8px 12px;border-bottom:1.5px solid var(--line)}
+  th.r,td.r{text-align:right}
+  td{padding:9px 12px;border-bottom:1px solid var(--line2)}
+  tr.zero td{background:#F7F9FB}
+  td.up{color:var(--accent-d);font-weight:700} td.dn{color:var(--red);font-weight:700} td.flat{color:var(--muted)}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:12px}
+  .note b{color:var(--text);font-weight:700}
+
+  /* footer */
+  footer{margin-top:30px;background:var(--ink);color:#C7D0D9}
+  .foot-in{max-width:1080px;margin:0 auto;padding:24px 18px 30px}
+  .foot-top{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #232A33;padding-bottom:16px}
+  .foot-brand{font-weight:800;letter-spacing:.14em;color:#fff}
+  .foot-tag{font-size:12.5px;color:#9AA6B2}
+  .foot-links{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap;font-size:13px}
+  .foot-links a{color:#C7D0D9}
+  .foot-contact{margin-top:14px;font-size:12.5px;color:#9AA6B2;line-height:1.7}
+  .foot-contact b{color:#EAF0F4;font-weight:700}
+  .disclaimer{margin-top:14px;font-size:11px;color:#7E8A96;line-height:1.6}
+
+  @media (max-width:560px){
+    h1{font-size:22px} .stat-v{font-size:19px} .topbar-right{font-size:11.5px;gap:12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF — Mandate-Backed Finance" class="brand-logo" />
+    </div>
+    <div class="topbar-right">
+      <span class="sys"><span class="dot"></span>Структурный продукт · защита капитала</span>
+      <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Хедж-калькулятор</div>
+    <h1>Защита тела в USDT + участие в росте BTC</h1>
+    <p class="lede">Структурная нота: «надёжная нога в USDT + опцион колл на BTC». Меняйте параметры — участие, маржа проекта и все сценарии пересчитываются мгновенно. Можно подставить живую цену опциона с биржи вместо модельной.</p>
+    <div class="chips">
+      <span class="chip">BTC ≈ $65 000 <i>ориентир, июнь 2026</i></span>
+      <span class="chip">DVOL ≈ 50% <i>подразум. волатильность</i></span>
+      <span class="chip">USDT yield ≈ 4–5% <i>надёжный</i></span>
+    </div>
+  </header>
+
+  <!-- PACKAGES -->
+  <div class="pkgs-lbl">Пакеты <span>· рекомендованная конфигурация в один клик</span></div>
+  <div class="pkgs" id="pkgs"></div>
+  <div class="pkgs-state">Активно: <b id="activePkg">Custom (ручные параметры)</b> · проценты пакетов рассчитаны для волатильности 50% и доходности 5%; меняйте допущения ниже.</div>
+
+  <!-- INPUTS -->
+  <section class="card">
+    <div class="card-h">Параметры продукта</div>
+    <div class="presets">
+      <span class="presets-lbl">Срок</span>
+      <button class="pill" data-term="30">30 дн · Conservative</button>
+      <button class="pill" data-term="90">90 дн · Balanced</button>
+      <button class="pill" data-term="180">180 дн · Growth</button>
+    </div>
+    <div class="grid" id="inputs"></div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats" id="stats"></section>
+  <div id="reality"></div>
+
+  <!-- CHART -->
+  <section class="card">
+    <div class="card-h">Выплата клиенту в зависимости от BTC</div>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><i class="sw sw-a"></i> выплата клиенту</span>
+      <span><i class="sw sw-g"></i> BTC «в лоб» (без защиты)</span>
+      <span class="be" id="be"></span>
+    </div>
+  </section>
+
+  <!-- SCENARIOS -->
+  <section class="card">
+    <div class="card-h">Сценарии</div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr>
+          <th>BTC</th><th class="r">Цена BTC</th><th class="r">Клиент получает</th>
+          <th class="r">Доход клиента</th><th class="r">Маржа проекта</th>
+        </tr></thead>
+        <tbody id="scenBody"></tbody>
+      </table>
+    </div>
+    <div class="note">Все суммы в USDT. Маржа проекта зафиксирована в момент запуска (купленный опцион оплачен заранее, надёжная нога возвращает тело) — поэтому при <b>любом</b> движении BTC проект не уходит в минус по рынку. Реальные риски — не направление BTC, а контрагент/биржа, депег USDT, досрочный выход и операционные ошибки.</div>
+  </section>
+</div>
+
+<footer>
+  <div class="foot-in">
+    <div class="foot-top">
+      <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF" class="foot-logo" />
+      <span class="foot-tag">Framework for Automated, Mandate-Backed Finance</span>
+      <span class="foot-links">
+        <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
+        <a href="https://cal.com/fambf/discovery" target="_blank" rel="noopener">Записаться на звонок</a>
+        <a href="https://www.linkedin.com/in/pavlofilianov/" target="_blank" rel="noopener">LinkedIn</a>
+      </span>
+    </div>
+    <div class="foot-contact">
+      Разработано <b>FAMBF</b> · Подготовил: <b>Pavlo Filianov</b>, Founder &nbsp;·&nbsp;
+      <a href="mailto:pavlo@fambf.com">pavlo@fambf.com</a> &nbsp;·&nbsp; <b>fambf.com</b>
+    </div>
+    <div class="disclaimer">
+      Инструмент для оценки структуры продукта. Это не котировка и не инвестиционная рекомендация: проценты участия зависят от рыночной волатильности и ставок на дату запуска и не являются обещанием доходности. Защита тела действует только на дату погашения и обеспечивается надёжной ногой и купленными опционами — её надёжность ограничена платёжеспособностью контрагентов и биржи, а также устойчивостью USDT. Любое предложение с обещанием возврата может быть регулируемым продуктом — перед запуском требуется юридическая проверка лицензирования в вашей юрисдикции. © 2026 FAMBF.
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- math ---------- */
+function erf(x){var s=x<0?-1:1,ax=Math.abs(x);
+  var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  var t=1/(1+p*ax);
+  var y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-ax*ax);
+  return s*y;}
+function nCdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
+function callFrac(mny,sig,rc,T){ if(T<=0)return Math.max(0,1-mny);
+  var v=sig*Math.sqrt(T), d1=(-Math.log(mny)+(rc+0.5*sig*sig)*T)/v, d2=d1-v;
+  return nCdf(d1)-mny*Math.exp(-rc*T)*nCdf(d2);}
+function grp(n,d){ d=d||0; if(!isFinite(n))return"—";
+  var s=Number(n).toFixed(d), parts=s.split("."), neg=parts[0].indexOf("-")===0, dig=neg?parts[0].slice(1):parts[0];
+  return (neg?"−":"")+dig.replace(/\B(?=(\d{3})+(?!\d))/g," ")+(parts[1]?","+parts[1]:"");}
+
+/* ---------- state ---------- */
+var S={principal:80000,spot:65000,termDays:90,volPct:50,yieldPct:5,protPct:100,offeredPct:11,
+  capOn:false,capPct:30,entryFeePct:1,perfFeePct:0,slipPct:0.5,useMkt:false,mktCallPct:10.4,mktCapPct:1.3};
+var PKG={Conservative:{term:30,prot:98.5,part:18,minEntry:10000},
+  Balanced:{term:90,prot:97,part:30,minEntry:25000},
+  Growth:{term:180,prot:95,part:40,minEntry:50000}};
+var SPEC={30:{name:"Conservative",t:"20–30%",lo:20},90:{name:"Balanced",t:"35–40%",lo:35},180:{name:"Growth",t:"45–50%",lo:45}};
+var SCN=[-0.5,-0.3,-0.1,0,0.1,0.3,0.5,1.0];
+var activePkg=null;
+
+/* ---------- compute ---------- */
+function compute(){
+  var T=S.termDays/365, r=S.yieldPct/100, rc=Math.log(1+r), sig=S.volPct/100,
+      prot=S.protPct/100, cap=S.capPct/100,
+      DF=Math.pow(1+r,-T), budget=1-prot*DF,
+      cATMm=callFrac(1,sig,rc,T), cCapm=S.capOn?callFrac(1+cap,sig,rc,T):0,
+      cATM=S.useMkt?S.mktCallPct/100:cATMm,
+      cCap=S.capOn?(S.useMkt?S.mktCapPct/100:cCapm):0,
+      unit=S.capOn?(cATM-cCap):cATM,
+      maxPart=unit>0?budget/unit:0,
+      part=S.offeredPct/100, optCost=part*unit,
+      slip=S.slipPct/100, entry=S.entryFeePct/100,
+      structM=budget-optCost, netStruct=structM-slip, locked=netStruct+entry,
+      deposit=prot*DF;
+  return {T:T,r:r,rc:rc,sig:sig,prot:prot,cap:cap,DF:DF,budget:budget,cATMm:cATMm,
+    cATM:cATM,cCap:cCap,unit:unit,maxPart:maxPart,part:part,optCost:optCost,
+    structM:structM,locked:locked,deposit:deposit};
+}
+function payoff(R,m){var up=S.capOn?Math.min(Math.max(R,0),m.cap):Math.max(R,0);
+  var gross=m.prot*S.principal+m.part*S.principal*up, gain=gross-S.principal,
+      pf=gain>0?(S.perfFeePct/100)*gain:0;
+  return {net:gross-pf, ret:(gross-pf)/S.principal-1, pf:pf, btc:S.principal*(1+R)};}
+
+/* ---------- field defs ---------- */
+var FIELDS=[
+  {k:"principal",label:"Взнос клиента",unit:"USDT",type:"num"},
+  {k:"spot",label:"Цена BTC на старте",unit:"USDT",type:"num"},
+  {k:"termDays",label:"Срок",unit:" дн",min:7,max:365,step:1,custom:true},
+  {k:"volPct",label:"Подразум. волатильность BTC",unit:"%",min:20,max:120,step:1,hint:"дороже опцион → меньше участия"},
+  {k:"yieldPct",label:"Доходность USDT (надёжная)",unit:"% год",min:0,max:15,step:0.25,hint:"выше ставка → больше бюджет, но и больше риск"},
+  {k:"protPct",label:"Защита тела",unit:"%",min:85,max:100,step:0.5,custom:true,hint:"главный рычаг участия"},
+  {k:"offeredPct",label:"Участие в росте (клиенту)",unit:"%",min:0,max:60,step:0.5,custom:true,hintFn:function(m){return "максимум при этих параметрах: "+grp(m.maxPart*100,1)+"%";}},
+  {k:"entryFeePct",label:"Комиссия на входе",unit:"%",min:0,max:3,step:0.25},
+  {k:"perfFeePct",label:"Комиссия с прибыли клиента",unit:"%",min:0,max:30,step:1},
+  {k:"slipPct",label:"Буфер на спред/проскальзывание",unit:"%",min:0,max:2,step:0.1}
+];
+
+/* ---------- render ---------- */
+function decFor(step){return step<1?(step<0.1?2:1):0;}
+function buildInputs(){
+  var box=document.getElementById("inputs"); box.innerHTML="";
+  var m=compute();
+  FIELDS.forEach(function(f){
+    var d=document.createElement("div");
+    if(f.type==="num"){
+      d.innerHTML='<div class="field-head"><span class="field-label">'+f.label+'</span></div>'+
+        '<div class="numwrap"><input type="number" id="f_'+f.k+'" value="'+S[f.k]+'"><span class="numunit">'+f.unit+'</span></div>';
+      box.appendChild(d);
+      d.querySelector("input").addEventListener("input",function(e){S[f.k]=parseFloat(e.target.value)||0; if(f.custom)setActive(null); refresh();});
+    }else{
+      var hint=f.hintFn?f.hintFn(m):(f.hint||"");
+      d.innerHTML='<div class="field-head"><span class="field-label">'+f.label+'</span>'+
+        '<span class="field-val" id="v_'+f.k+'">'+grp(S[f.k],decFor(f.step))+'<i>'+f.unit+'</i></span></div>'+
+        '<input type="range" id="f_'+f.k+'" min="'+f.min+'" max="'+f.max+'" step="'+f.step+'" value="'+S[f.k]+'">'+
+        (hint?'<div class="field-hint" id="h_'+f.k+'">'+hint+'</div>':'');
+      box.appendChild(d);
+      d.querySelector("input").addEventListener("input",function(e){S[f.k]=parseFloat(e.target.value); if(f.custom)setActive(null); refresh();});
+    }
+  });
+  // cap toggle
+  var capd=document.createElement("div"); capd.className="capfield";
+  capd.innerHTML='<div class="field-head"><span class="field-label">Кэп на рост (call-spread)</span>'+
+    '<button class="toggle'+(S.capOn?" on":"")+'" id="capBtn">'+(S.capOn?"включён":"выключен")+'</button></div>'+
+    (S.capOn?'<input type="range" min="10" max="100" step="5" id="f_capPct" value="'+S.capPct+'"><div class="field-hint">апсайд ограничен ростом BTC на '+S.capPct+'% · участие растёт</div>':'');
+  box.appendChild(capd);
+  document.getElementById("capBtn").addEventListener("click",function(){S.capOn=!S.capOn; setActive(null); rebuild();});
+  if(S.capOn)document.getElementById("f_capPct").addEventListener("input",function(e){S.capPct=parseFloat(e.target.value); rebuild();});
+  // market override
+  var mk=document.createElement("div"); mk.className="mktfield";
+  mk.innerHTML='<div class="field-head"><span class="field-label">Живая цена опциона с биржи (вместо модели)</span>'+
+    '<button class="toggle'+(S.useMkt?" on":"")+'" id="mktBtn">'+(S.useMkt?"вкл":"выкл")+'</button></div>'+
+    (S.useMkt?'<div class="sub"><div><div class="field-head"><span class="field-label" style="font-weight:500">Цена ATM-колла, % от спота</span></div><div class="numwrap"><input type="number" id="f_mktCallPct" value="'+S.mktCallPct+'" step="0.1"><span class="numunit">%</span></div></div>'+
+      (S.capOn?'<div><div class="field-head"><span class="field-label" style="font-weight:500">Цена колла на страйке кэпа, %</span></div><div class="numwrap"><input type="number" id="f_mktCapPct" value="'+S.mktCapPct+'" step="0.1"><span class="numunit">%</span></div></div>':'')+
+      '</div>':'<div class="field-hint">включите, чтобы подставить котировки с Deribit/OTC вместо Блэка–Шоулза</div>');
+  box.appendChild(mk);
+  document.getElementById("mktBtn").addEventListener("click",function(){S.useMkt=!S.useMkt; rebuild();});
+  if(S.useMkt){
+    document.getElementById("f_mktCallPct").addEventListener("input",function(e){S.mktCallPct=parseFloat(e.target.value)||0; refresh();});
+    if(S.capOn)document.getElementById("f_mktCapPct").addEventListener("input",function(e){S.mktCapPct=parseFloat(e.target.value)||0; refresh();});
+  }
+}
+function buildPkgs(){
+  var box=document.getElementById("pkgs"); box.innerHTML="";
+  Object.keys(PKG).forEach(function(name){
+    var p=PKG[name], b=document.createElement("button");
+    b.className="pkg"+(activePkg===name?" on":"");
+    b.innerHTML='<span class="pkg-name">'+name+'</span>'+
+      '<span class="pkg-meta">'+p.term+' дн · защита '+grp(p.prot,1)+'% · участие ≈'+p.part+'%</span>'+
+      '<span class="pkg-min">мин. вход '+grp(p.minEntry,0)+' USDT</span>';
+    b.addEventListener("click",function(){S.termDays=p.term;S.protPct=p.prot;S.offeredPct=p.part;S.capOn=false;setActive(name);rebuild();});
+    box.appendChild(b);
+  });
+}
+function setActive(name){activePkg=name; document.getElementById("activePkg").textContent=name||"Custom (ручные параметры)";
+  document.querySelectorAll("#pkgs .pkg").forEach(function(el,i){var nm=Object.keys(PKG)[i];el.classList.toggle("on",nm===name);});
+  document.querySelectorAll(".pill").forEach(function(el){el.classList.toggle("on",parseInt(el.dataset.term)===S.termDays&&name!==null?false:parseInt(el.dataset.term)===S.termDays);});}
+
+function statHTML(k,v,sub,tone){return '<div class="stat'+(tone?" "+tone:"")+'"><div class="stat-k">'+k+'</div><div class="stat-v">'+v+'</div>'+(sub?'<div class="stat-sub">'+sub+'</div>':'')+'</div>';}
+function refresh(){
+  var m=compute(), feasible=m.part<=m.maxPart+1e-9;
+  // update slider value labels + hints
+  FIELDS.forEach(function(f){ if(f.type!=="num"){ var v=document.getElementById("v_"+f.k); if(v)v.innerHTML=grp(S[f.k],decFor(f.step))+'<i>'+f.unit+'</i>';
+    if(f.hintFn){var h=document.getElementById("h_"+f.k); if(h)h.textContent=f.hintFn(m);} } });
+  // stats
+  document.getElementById("stats").innerHTML=
+    statHTML("Бюджет на опцион",grp(m.budget*100,2)+"%",grp(m.budget*S.principal,0)+" USDT")+
+    statHTML("Цена ATM-колла",grp(m.cATM*100,1)+"%",S.useMkt?"рыночная"+(S.capOn?" · спред "+grp(m.unit*100,1)+"%":""):(S.capOn?"спред: "+grp(m.unit*100,1)+"%":"от спота"))+
+    statHTML("Максимум участия",grp(m.maxPart*100,1)+"%","на весь бюджет, маржа = 0","accent")+
+    statHTML("Предлагаем клиенту",grp(S.offeredPct,1)+"%",feasible?"в пределах бюджета":"ВЫШЕ бюджета — нечем хеджировать",feasible?"":"bad")+
+    statHTML("Маржа проекта (фикс.)",grp(m.locked*S.principal,0),"USDT · "+grp(m.locked*100,2)+"% · не зависит от BTC",m.locked>=0?"good":"bad")+
+    statHTML("Резерв (защита тела)",grp(m.deposit*S.principal,0),"USDT в надёжную ногу");
+  // reality
+  var spec=SPEC[S.termDays], rel=document.getElementById("reality");
+  if(spec){var ok=m.maxPart*100+0.05>=spec.lo;
+    rel.className="reality "+(ok?"ok":"warn");
+    rel.innerHTML="<b>"+spec.name+"</b> ("+S.termDays+" дн): в ТЗ заявлено участие <b>"+spec.t+"</b>; при текущих параметрах реально доступно <b>до "+grp(m.maxPart*100,0)+"%</b>"+
+      (m.prot>=1?" при 100% защите. Чтобы дотянуть до цели из ТЗ — снизьте защиту тела ниже 100% или включите кэп.":" при защите "+grp(S.protPct,1)+"%.");
+  } else { rel.className=""; rel.innerHTML=""; }
+  // breakeven
+  var be=document.getElementById("be"), beR=m.prot>=1?0:(m.part>0?(1-m.prot)/m.part:null);
+  be.textContent=(beR!==null&&beR>0)?("безубыток клиента: BTC ≥ +"+grp(beR*100,1)+"%"):"";
+  // scenarios
+  var tb=document.getElementById("scenBody"); tb.innerHTML="";
+  SCN.forEach(function(R){var p=payoff(R,m), tr=document.createElement("tr"); if(R===0)tr.className="zero";
+    tr.innerHTML='<td class="mono '+(R>0?"up":R<0?"dn":"")+'">'+(R>0?"+":"")+grp(R*100,0)+'%</td>'+
+      '<td class="r mono">'+grp(p.btc,0)+'</td>'+
+      '<td class="r mono">'+grp(p.net,0)+'</td>'+
+      '<td class="r mono '+(p.ret>0?"up":p.ret<0?"dn":"flat")+'">'+(p.ret>0?"+":"")+grp(p.ret*100,1)+'%</td>'+
+      '<td class="r mono up">'+grp(m.locked*S.principal+p.pf,0)+'</td>';
+    tb.appendChild(tr);});
+  drawChart(m);
+}
+function rebuild(){buildPkgs();buildInputs();refresh();}
+
+/* ---------- SVG payoff chart ---------- */
+function drawChart(m){
+  var W=720,H=340,L=58,Rm=18,Tm=14,Bm=34, pw=W-L-Rm, ph=H-Tm-Bm;
+  var xs=[], ymin=Infinity, ymax=-Infinity;
+  for(var R=-0.6;R<=1.2001;R+=0.02){var p=payoff(R,m); xs.push({R:R,c:p.net,b:p.btc}); ymin=Math.min(ymin,p.net,p.btc); ymax=Math.max(ymax,p.net,p.btc);}
+  ymin=Math.min(ymin,S.principal); ymax=Math.max(ymax,S.principal);
+  var pad=(ymax-ymin)*0.08||1; ymin-=pad; ymax+=pad; if(ymin<0)ymin=0;
+  function X(R){return L+((R+0.6)/1.8)*pw;}
+  function Y(v){return Tm+(1-(v-ymin)/(ymax-ymin))*ph;}
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="График выплаты">';
+  // horizontal gridlines (5)
+  for(var i=0;i<=4;i++){var gv=ymin+(ymax-ymin)*i/4, gy=Y(gv);
+    svg+='<line x1="'+L+'" y1="'+gy.toFixed(1)+'" x2="'+(W-Rm)+'" y2="'+gy.toFixed(1)+'" stroke="#E6EAF0" stroke-width="1"/>';
+    svg+='<text x="'+(L-8)+'" y="'+(gy+3.5).toFixed(1)+'" text-anchor="end" font-size="10" fill="#8A93A0" font-family="monospace">'+grp(gv/1000,0)+'k</text>';}
+  // x ticks
+  [-50,0,50,100].forEach(function(t){var x=X(t/100);
+    svg+='<line x1="'+x.toFixed(1)+'" y1="'+Tm+'" x2="'+x.toFixed(1)+'" y2="'+(Tm+ph)+'" stroke="'+(t===0?"#C9CFDB":"#EEF1F5")+'" stroke-width="1"/>';
+    svg+='<text x="'+x.toFixed(1)+'" y="'+(H-12)+'" text-anchor="middle" font-size="10.5" fill="#8A93A0">'+(t>0?"+":"")+t+'%</text>';});
+  // par line
+  var yp=Y(S.principal);
+  svg+='<line x1="'+L+'" y1="'+yp.toFixed(1)+'" x2="'+(W-Rm)+'" y2="'+yp.toFixed(1)+'" stroke="#9AA6B2" stroke-width="1" stroke-dasharray="4 4"/>';
+  svg+='<text x="'+(W-Rm)+'" y="'+(yp-5).toFixed(1)+'" text-anchor="end" font-size="9.5" fill="#9AA6B2">взнос</text>';
+  // BTC line (dashed grey)
+  var bp=xs.map(function(d){return X(d.R).toFixed(1)+","+Y(d.b).toFixed(1);}).join(" ");
+  svg+='<polyline points="'+bp+'" fill="none" stroke="#9AA6B2" stroke-width="1.6" stroke-dasharray="5 4"/>';
+  // client line (green)
+  var cp=xs.map(function(d){return X(d.R).toFixed(1)+","+Y(d.c).toFixed(1);}).join(" ");
+  svg+='<polyline points="'+cp+'" fill="none" stroke="#0E9F6E" stroke-width="2.6"/>';
+  svg+='<rect x="'+L+'" y="'+Tm+'" width="'+pw+'" height="'+ph+'" fill="none" stroke="#E2E6EC" stroke-width="1"/>';
+  svg+='</svg>';
+  document.getElementById("chart").innerHTML=svg;
+}
+
+/* ---------- wire ---------- */
+document.querySelectorAll(".pill").forEach(function(el){el.addEventListener("click",function(){S.termDays=parseInt(el.dataset.term);setActive(null);rebuild();});});
+buildPkgs(); buildInputs(); refresh();
+</script>
+</body>
+</html>
