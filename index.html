@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>FAMBF — Клиентский калькулятор: защита капитала в USDT + участие в росте BTC</title>
-<meta name="description" content="Клиентский калькулятор структурного продукта FAMBF: выбор срока (30/90/180 дней) и риска (2/3/5%), распределение доходности 20–80%, котировки Deribit на 02.07.2026." />
+<meta name="description" content="Клиентский калькулятор структурного продукта FAMBF: выбор срока и риска (2/3/5%), распределение доходности 20–80%, котировки Deribit на 20.07.2026 (редактируемые)." />
 <style>
   :root{
     --ink:#0E1217; --ink2:#161B22; --paper:#F4F6F8; --card:#FFFFFF;
@@ -154,7 +154,7 @@
       <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF — Mandate-Backed Finance" class="brand-logo" />
     </div>
     <div class="topbar-right">
-      <span class="sys"><span class="dot"></span>Котировки Deribit · 02.07.2026</span>
+      <span class="sys"><span class="dot"></span>Котировки Deribit · 20.07.2026</span>
       <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
     </div>
   </div>
@@ -164,11 +164,11 @@
   <header class="hero">
     <div class="eyebrow">Клиентский калькулятор</div>
     <h1>Защита капитала в USDT + участие в росте BTC</h1>
-    <p class="lede">Три шага: сумма → срок и допустимый риск → распределение доходности. Все цифры пересчитываются мгновенно на котировках опционов Deribit на 2 июля 2026 (их можно править в блоке «Допущения»).</p>
+    <p class="lede">Три шага: сумма → срок и допустимый риск → распределение доходности. Все цифры пересчитываются мгновенно на котировках опционов Deribit на 20 июля 2026. Котировки и дни до экспирации редактируются в блоке «Допущения» — страница не устаревает.</p>
     <div class="chips">
-      <span class="chip">BTC $61 000 <i>спот · 02.07.2026</i></span>
-      <span class="chip">DVOL ≈ 48 <i>29.06: 47,7–48,3</i></span>
-      <span class="chip">Серии 31JUL / 25SEP / 25DEC <i>Deribit</i></span>
+      <span class="chip">BTC $64 500 <i>спот · 20.07.2026</i></span>
+      <span class="chip">DVOL ≈ 38 <i>14.07: 37,4 · минимумы</i></span>
+      <span class="chip">Серии 28AUG / 25SEP / 25DEC <i>Deribit</i></span>
       <span class="chip">USDT 5% год. <i>надёжная нога</i></span>
     </div>
   </header>
@@ -254,7 +254,7 @@
   <section class="card">
     <div class="card-h">Допущения и котировки · правьте при необходимости</div>
     <div class="as-grid" id="asGrid"></div>
-    <div class="hint">Котировки коллов — модельные марки на 02.07.2026, откалиброванные по DVOL. Перед сделкой откройте серию в терминале Deribit и впишите сюда её mark price (в % от спота) — калькулятор пересчитает участие и маржу по факту.</div>
+    <div class="hint">Котировки коллов — модельные марки на 20.07.2026 (DVOL≈38, терм-структура в контанго). Перед сделкой откройте серию в терминале Deribit (deribit.com/options/BTC), впишите её mark price в % от спота (mark в BTC × 100) и актуальное число дней до экспирации — калькулятор пересчитает участие и маржу по факту. Когда серия истечёт, впишите сюда новую серию: её дни и марку.</div>
   </section>
 
   <div class="reality" id="reality"></div>
@@ -286,11 +286,11 @@ function grp(n,dec){var neg=n<0;n=Math.abs(n);var parts=n.toFixed(dec==null?0:de
   return (neg?"−":"")+dig+(parts[1]?","+parts[1]:"");}
 function pct(x,dec){return (x>0?"+":"")+grp(x*100,dec==null?1:dec)+"%";}
 
-/* ---------- market data · Deribit, 02.07.2026 ---------- */
+/* ---------- market data · Deribit, 20.07.2026 (редактируется в «Допущениях») ---------- */
 var TERMS=[
-  {d:29, label:"30 дней", series:"BTC-31JUL26", iv:48},
-  {d:85, label:"90 дней", series:"BTC-25SEP26", iv:47},
-  {d:176,label:"180 дней",series:"BTC-25DEC26", iv:46}
+  {id:"m", label:"~30 дней",  series:"BTC-28AUG26"},
+  {id:"q", label:"~90 дней",  series:"BTC-25SEP26"},
+  {id:"h", label:"~180 дней", series:"BTC-25DEC26"}
 ];
 var RISKS=[2,3,5];
 var SCN=[-0.5,-0.3,-0.1,0,0.1,0.3,0.5,1.0];
@@ -298,21 +298,22 @@ var AMOUNTS=[10000,25000,50000,80000,100000,250000];
 
 /* ---------- state ---------- */
 var S={
-  principal:80000, term:29, risk:3, share:70,
-  spot:61000, yieldPct:5, slipPct:0.3, entryPct:1,
-  q:{29:5.58, 85:9.55, 176:13.74}   /* марки ATM-коллов, % от спота, 02.07.2026 */
+  principal:80000, term:"m", risk:3, share:70,
+  spot:64500, yieldPct:5, slipPct:0.3, entryPct:1,
+  days:{m:39, q:67, h:158},          /* дней до экспирации серии — редактируется */
+  q:{m:5.20, q:7.25, h:11.95}        /* марки ATM-коллов, % от спота, 20.07.2026 — редактируются */
 };
 
 /* ---------- math ---------- */
-function calc(termD,riskPct,sharePct){
-  var T=termD/365, r=S.yieldPct/100, DF=Math.pow(1+r,-T),
+function calc(slot,riskPct,sharePct){
+  var d=S.days[slot]||1, T=d/365, r=S.yieldPct/100, DF=Math.pow(1+r,-T),
       prot=1-riskPct/100, budget=1-prot*DF,
-      call=(S.q[termD]||0)/100,
+      call=(S.q[slot]||0)/100,
       maxPart=call>0?budget/call:0,
       part=(sharePct/100)*maxPart,
       margin=(1-sharePct/100)*budget - S.slipPct/100 + S.entryPct/100,
       reserve=prot*DF;
-  return {T:T,DF:DF,prot:prot,budget:budget,call:call,maxPart:maxPart,part:part,
+  return {d:d,T:T,DF:DF,prot:prot,budget:budget,call:call,maxPart:maxPart,part:part,
           margin:margin,reserve:reserve,risk:riskPct/100};
 }
 function clientRet(m,R){return -m.risk + m.part*Math.max(0,R);}
@@ -332,7 +333,7 @@ function renderAmts(){
 function renderMatrix(){
   var h=document.getElementById("mxHead");
   h.innerHTML='<th class="risk">Риск \\ Срок</th>'+TERMS.map(function(t){
-    return '<th>'+t.label+'<span class="ser">'+t.series+' · '+t.d+' дн · IV '+t.iv+'%</span></th>';}).join("");
+    return '<th>'+t.label+'<span class="ser">'+t.series+' · '+grp(S.days[t.id],0)+' дн · марка '+grp(S.q[t.id],2)+'%</span></th>';}).join("");
   var b=document.getElementById("mxBody"); b.innerHTML="";
   RISKS.forEach(function(rk){
     var tr=document.createElement("tr");
@@ -341,13 +342,13 @@ function renderMatrix(){
     lbl.innerHTML="−"+rk+"%<i>защита "+grp(100-rk,0)+"%</i>";
     tr.appendChild(lbl);
     TERMS.forEach(function(t){
-      var m=calc(t.d,rk,S.share);
+      var m=calc(t.id,rk,S.share);
       var td=document.createElement("td");
       var btn=document.createElement("button");
-      btn.className="mcell"+(S.term===t.d&&S.risk===rk?" on":"");
+      btn.className="mcell"+(S.term===t.id&&S.risk===rk?" on":"");
       btn.innerHTML='<div class="p">'+grp(m.part*100,1)+'%</div>'+
         '<div class="mx-sub">участие · макс '+grp(m.maxPart*100,0)+'%</div>';
-      btn.addEventListener("click",function(){S.term=t.d;S.risk=rk;refresh();});
+      btn.addEventListener("click",function(){S.term=t.id;S.risk=rk;refresh();});
       td.appendChild(btn); tr.appendChild(td);
     });
     b.appendChild(tr);
@@ -360,8 +361,8 @@ function renderSplit(){
   c.textContent="клиент "+S.share+"%"; p.textContent="проект "+(100-S.share)+"%";
 }
 function renderStats(m){
-  var t=TERMS.find(function(x){return x.d===S.term;});
-  var annM=Math.pow(1+m.margin,365/S.term)-1;
+  var t=TERMS.find(function(x){return x.id===S.term;});
+  var annM=Math.pow(1+m.margin,365/m.d)-1;
   document.getElementById("stats").innerHTML=
     st("Участие клиента в росте BTC",'<span class="green">'+grp(m.part*100,1)+"%</span>",
        "максимум при этих котировках: "+grp(m.maxPart*100,1)+"%","accent")+
@@ -370,7 +371,7 @@ function renderStats(m){
     st("Маржа проекта · фикс.",grp(m.margin*S.principal,0)+" <i style='font-size:12px'>USDT</i>",
        grp(m.margin*100,2)+"% за период · ≈"+grp(annM*100,1)+"% год. · не зависит от BTC","dark")+
     st("Котировка ATM-колла · "+t.series,grp(m.call*100,2)+"%",
-       "≈ "+grp(m.call*S.spot,0)+" USDT за 1 BTC номинала · срок "+S.term+" дн")+
+       "≈ "+grp(m.call*S.spot,0)+" USDT за 1 BTC номинала · срок "+grp(m.d,0)+" дн")+
     st("Опционный бюджет",grp(m.budget*100,2)+"%",
        grp(m.budget*S.principal,0)+" USDT · клиенту "+S.share+"% / проекту "+(100-S.share)+"%")+
     st("Резерв в надёжную ногу",grp(m.reserve*S.principal,0)+" <i style='font-size:12px'>USDT</i>",
@@ -379,8 +380,8 @@ function renderStats(m){
     '</div><div class="stat-v">'+v+'</div><div class="stat-sub">'+sub+'</div></div>';}
 }
 function renderRiskTable(){
-  var t=TERMS.find(function(x){return x.d===S.term;});
-  document.getElementById("rtH").innerHTML="Риск → доходность · срок <b>"+t.label+"</b> ("+t.series+") · доля клиента "+S.share+"%";
+  var t=TERMS.find(function(x){return x.id===S.term;});
+  document.getElementById("rtH").innerHTML="Риск → доходность · срок <b>"+t.label+"</b> ("+t.series+" · "+grp(S.days[S.term],0)+" дн) · доля клиента "+S.share+"%";
   var b=document.getElementById("rtBody"); b.innerHTML="";
   RISKS.forEach(function(rk){
     var m=calc(S.term,rk,S.share), tr=document.createElement("tr");
@@ -395,7 +396,6 @@ function renderRiskTable(){
 function renderChart(m){
   var W=920,H=330,padL=56,padR=16,padT=14,padB=34,
       x0=-0.5,x1=1.0,
-      ys=SCN.map(function(R){return clientRet(m,R);}),
       yMin=Math.min(-m.risk,-0.06), yMax=Math.max(clientRet(m,x1),x1,0.1);
   yMin=Math.min(yMin,-0.5); /* показываем и глубину падения BTC */
   function X(v){return padL+(v-x0)/(x1-x0)*(W-padL-padR);}
@@ -415,7 +415,6 @@ function renderChart(m){
   svg+='<line x1="'+X(0)+'" y1="'+padT+'" x2="'+X(0)+'" y2="'+(H-padB)+'" stroke="#E2E6EC" stroke-width="1"/>';
   svg+='<polyline points="'+btc.join(" ")+'" fill="none" stroke="#B9C2CC" stroke-width="2" stroke-dasharray="5 4"/>';
   svg+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="#0E9F6E" stroke-width="3.2" stroke-linejoin="round"/>';
-  /* floor marker */
   svg+='<circle cx="'+X(0)+'" cy="'+Y(-m.risk)+'" r="4.5" fill="#E5484D"/>';
   svg+='</svg>';
   document.getElementById("chart").innerHTML=svg;
@@ -439,35 +438,37 @@ function renderScen(m){
 function renderAssumptions(){
   var g=document.getElementById("asGrid"); g.innerHTML="";
   var defs=[
-    {k:"spot",label:"Спот BTC (02.07.2026)",u:"USDT",get:function(){return grp(S.spot,0);},set:function(v){S.spot=v;}},
+    {k:"spot",label:"Спот BTC (20.07.2026)",u:"USDT",get:function(){return grp(S.spot,0);},set:function(v){S.spot=v;}},
     {k:"yieldPct",label:"Доходность USDT (надёжная)",u:"% год.",get:function(){return S.yieldPct;},set:function(v){S.yieldPct=v;}},
     {k:"slipPct",label:"Буфер исполнения за период",u:"%",get:function(){return S.slipPct;},set:function(v){S.slipPct=v;}},
-    {k:"entryPct",label:"Комиссия на входе (разово)",u:"%",get:function(){return S.entryPct;},set:function(v){S.entryPct=v;}},
-    {k:"q29",label:"Колл BTC-31JUL26 · марка",u:"% спота",q:29},
-    {k:"q85",label:"Колл BTC-25SEP26 · марка",u:"% спота",q:85},
-    {k:"q176",label:"Колл BTC-25DEC26 · марка",u:"% спота",q:176}
+    {k:"entryPct",label:"Комиссия на входе (разово)",u:"%",get:function(){return S.entryPct;},set:function(v){S.entryPct=v;}}
   ];
+  TERMS.forEach(function(t){
+    defs.push({k:"d_"+t.id,label:"Дней до эксп. · "+t.series,u:"дн",slot:t.id,fld:"days"});
+    defs.push({k:"q_"+t.id,label:"Колл "+t.series+" · марка",u:"% спота",slot:t.id,fld:"q"});
+  });
   defs.forEach(function(f){
     var d=document.createElement("div");
-    d.className="as"+(f.q?" q":"");
-    var val=f.q?S.q[f.q]:f.get();
-    d.innerHTML='<label>'+(f.q?'<b>'+f.label+'</b>':f.label)+' <span class="u">'+f.u+'</span></label>'+
+    d.className="as"+(f.slot?" q":"");
+    var val=f.slot?S[f.fld][f.slot]:f.get();
+    d.innerHTML='<label>'+(f.slot?'<b>'+f.label+'</b>':f.label)+' <span class="u">'+f.u+'</span></label>'+
       '<input id="as_'+f.k+'" value="'+val+'" inputmode="decimal" />';
     g.appendChild(d);
     d.querySelector("input").addEventListener("input",function(e){
       var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
-      if(isNaN(v))return;
-      if(f.q)S.q[f.q]=v; else f.set(v);
+      if(isNaN(v)||v<=0)return;
+      if(f.slot)S[f.fld][f.slot]=v; else f.set(v);
       refreshCalc();
     });
   });
 }
 function renderReality(m){
+  var t=TERMS.find(function(x){return x.id===S.term;});
   document.getElementById("reality").innerHTML=
     "<b>Как это читается клиенту:</b> при взносе "+grp(S.principal,0)+" USDT худший исход — вернуть "+
     grp(m.prot*S.principal,0)+" USDT (−"+S.risk+"%), какой бы ни была просадка BTC. При росте BTC клиент получает "+
-    grp(m.part*100,1)+"% этого роста сверх защиты. Маржа проекта "+grp(m.margin*S.principal,0)+
-    " USDT фиксируется в момент запуска и не зависит от рынка. Котировки — Deribit, 02.07.2026 (марки модельные, сверяйте перед сделкой); прошлые и модельные цифры не гарантируют будущих.";
+    grp(m.part*100,1)+"% этого роста сверх защиты ("+t.series+", "+grp(m.d,0)+" дн). Маржа проекта "+grp(m.margin*S.principal,0)+
+    " USDT фиксируется в момент запуска и не зависит от рынка. Котировки — Deribit, 20.07.2026 (марки модельные, перед сделкой впишите mark price из терминала); прошлые и модельные цифры не гарантируют будущих.";
 }
 
 /* ---------- wiring ---------- */
