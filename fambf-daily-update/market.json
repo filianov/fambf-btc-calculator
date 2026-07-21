@@ -1,0 +1,9 @@
+{
+ "updated": "2026-07-20T12:00:00.000Z",
+ "spot": 64500,
+ "slots": {
+  "m": {"series": "BTC-28AUG26", "expiry_ts": 1787904000000, "mark_pct": 5.2, "iv": 38, "strike": 64000},
+  "q": {"series": "BTC-25SEP26", "expiry_ts": 1790323200000, "mark_pct": 7.25, "iv": 40, "strike": 64000},
+  "h": {"series": "BTC-25DEC26", "expiry_ts": 1798185600000, "mark_pct": 11.95, "iv": 42, "strike": 64000}
+ }
+}
