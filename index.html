@@ -129,6 +129,18 @@
   .as .u{font-size:11px;color:var(--muted)}
   .as.q label b{color:var(--accent-d)}
 
+  /* live infographic */
+  .card-h.flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .live-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:4px 10px;margin-left:auto;text-transform:none;letter-spacing:0}
+  .live-badge .ld{width:7px;height:7px;border-radius:50%;background:#B5791F;flex:0 0 auto}
+  .live-badge.on{color:var(--accent-d);border-color:#CDEBDD}
+  .live-badge.on .ld{background:var(--accent);box-shadow:0 0 0 3px rgba(14,159,110,.16)}
+  .info-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .info-controls .lbl{font-size:12px;color:var(--muted);font-weight:600;margin-right:2px}
+  .ichart svg{width:100%;height:auto;display:block}
+  .info-note{font-size:12px;color:var(--muted);margin-top:9px}
+
   /* reality strip */
   .reality{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.5;
     background:var(--amber2);border:1px solid #EAD9B4;color:#4C3A10}
@@ -166,8 +178,8 @@
     <h1>Защита капитала в USDT + участие в росте BTC</h1>
     <p class="lede">Три шага: сумма → срок и допустимый риск → распределение доходности. Все цифры пересчитываются мгновенно на котировках опционов Deribit на 20 июля 2026. Котировки и дни до экспирации редактируются в блоке «Допущения» — страница не устаревает.</p>
     <div class="chips">
-      <span class="chip">BTC $64 500 <i>спот · 20.07.2026</i></span>
-      <span class="chip">DVOL ≈ 38 <i>14.07: 37,4 · минимумы</i></span>
+      <span class="chip" id="chipSpot">BTC $64 500 <i>спот · 20.07.2026</i></span>
+      <span class="chip" id="chipVol">DVOL ≈ 38 <i>14.07: 37,4 · минимумы</i></span>
       <span class="chip">Серии 28AUG / 25SEP / 25DEC <i>Deribit</i></span>
       <span class="chip">USDT 5% год. <i>надёжная нога</i></span>
     </div>
@@ -209,6 +221,16 @@
 
   <!-- RESULTS -->
   <section class="stats" id="stats"></section>
+
+  <!-- LIVE INFOGRAPHIC -->
+  <section class="card">
+    <div class="card-h flex"><span><b>Ожидания по пакетам</b> · сценарии на живых котировках</span>
+      <span class="live-badge" id="liveBadge"><span class="ld"></span><span id="liveTxt">офлайн-марки · 20.07.2026</span></span></div>
+    <div class="info-controls"><span class="lbl">Режим:</span><span id="infoModes"></span>
+      <span class="lbl" style="margin-left:12px">Взнос для расчёта:</span><span id="infoDeps"></span></div>
+    <div class="ichart" id="ichart"></div>
+    <div class="info-note" id="infoNote"></div>
+  </section>
 
   <!-- RISK -> RETURN -->
   <section class="card">
@@ -303,6 +325,18 @@ var S={
   days:{m:39, q:67, h:158},          /* дней до экспирации серии — редактируется */
   q:{m:5.20, q:7.25, h:11.95}        /* марки ATM-коллов, % от спота, 20.07.2026 — редактируются */
 };
+/* live-инфографика */
+var LIVE={on:false, txt:"офлайн-марки · 20.07.2026"};
+var INFO_DEPS=[10000,100000,"self"];
+S.infoDep=10000;
+var ISCN=[-0.2,0,0.1,0.3,0.5];       /* сценарии BTC для инфографики */
+/* медианный рост BTC за k месяцев по реальным данным 2021 – 17.06.2026 (Coin Metrics, 61–66 скользящих окон) */
+var MED={1:0.0137,2:0.0351,3:0.0212,4:0.0224,5:0.0508,6:0.1474};
+function medBTC(days){
+  var m=Math.min(6,Math.max(1,days/30.44)),f=Math.floor(m),c=Math.min(6,f+1),w=m-f;
+  return MED[f]*(1-w)+MED[c]*w;
+}
+S.infoMode="pkgs";                    /* "pkgs" — три пакета · "vs" — пакет против BTC */
 
 /* ---------- math ---------- */
 function calc(slot,riskPct,sharePct){
@@ -471,12 +505,197 @@ function renderReality(m){
     " USDT фиксируется в момент запуска и не зависит от рынка. Котировки — Deribit, 20.07.2026 (марки модельные, перед сделкой впишите mark price из терминала); прошлые и модельные цифры не гарантируют будущих.";
 }
 
+/* ---------- live infographic ---------- */
+function infoDepVal(){return S.infoDep==="self"?S.principal:S.infoDep;}
+function renderInfoDeps(){
+  var box=document.getElementById("infoDeps"); box.innerHTML="";
+  INFO_DEPS.forEach(function(a){
+    var b=document.createElement("button");
+    b.className="amt"+(S.infoDep===a?" on":"");
+    b.textContent=(a==="self"?"Ваш взнос ("+grp(S.principal,0)+")":grp(a,0)+" USDT");
+    b.addEventListener("click",function(){S.infoDep=a;renderInfoDeps();renderInfographic();});
+    box.appendChild(b);
+  });
+}
+var AMBER="#C9860B";
+function renderInfoModes(){
+  var box=document.getElementById("infoModes"); box.innerHTML="";
+  [["pkgs","Три пакета"],["vs","Пакет vs BTC"]].forEach(function(md){
+    var b=document.createElement("button");
+    b.className="amt"+(S.infoMode===md[0]?" on":"");
+    b.textContent=md[1];
+    b.addEventListener("click",function(){S.infoMode=md[0];renderInfoModes();renderInfographic();});
+    box.appendChild(b);
+  });
+}
+function renderInfographic(){
+  if(S.infoMode==="vs"){renderInfoVs();return;}
+  var dep=infoDepVal();
+  var groups=TERMS.map(function(t){
+    var m=calc(t.id,S.risk,S.share), med=medBTC(S.days[t.id]);
+    return {t:t,m:m,med:med,
+      bars:ISCN.map(function(R){return {R:R,ret:clientRet(m,R),med:false};})
+        .concat([{R:med,ret:clientRet(m,med),med:true}])};
+  });
+  var all=[];
+  groups.forEach(function(g){g.bars.forEach(function(b){all.push(b.ret);});});
+  var yMax=Math.max.apply(null,all.concat([0.05])), yMin=Math.min.apply(null,all.concat([-0.04]));
+  var W=940,H=352,padT=26,plotB=196,padL=44;
+  function Y(v){return padT+(yMax-v)/(yMax-yMin)*(plotB-padT);}
+  var y0=Y(0);
+  var gw=286,ggap=16,startX=padL+6,bw=38,bgap=9;
+  var COLS={neg:"#E5484D",zero:"#9AA6B2",pos:["#8FD4B4","#4CBE8D","#0E9F6E"]};
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Ожидания по пакетам: сценарии">';
+  [yMax, yMax/2, 0, yMin].forEach(function(v){
+    svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-8)+'" y2="'+Y(v)+'" stroke="'+(v===0?"#C6CDD6":"#EDF0F4")+'" stroke-width="'+(v===0?1.4:1)+'"/>'+
+      '<text x="'+(padL-6)+'" y="'+(Y(v)+4)+'" font-size="10.5" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';
+  });
+  groups.forEach(function(g,gi){
+    var gx=startX+gi*(gw+ggap), posI=0;
+    g.bars.forEach(function(bb,i){
+      var x=gx+i*(bw+bgap), ret=bb.ret;
+      var col=bb.med?AMBER:(bb.R<0?COLS.neg:(bb.R===0?COLS.zero:COLS.pos[posI++]));
+      var yv=Y(ret), h=Math.abs(yv-y0), yr=ret>=0?yv:y0;
+      if(h<1.6){h=1.6;yr=ret>=0?y0-1.6:y0;}
+      svg+='<rect x="'+x+'" y="'+yr.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" rx="4" fill="'+col+'"/>';
+      var ly=ret>=0?Math.max(yv-5,12):Math.min(yv+13,plotB-2);
+      svg+='<text x="'+(x+bw/2)+'" y="'+ly.toFixed(1)+'" font-size="10" font-weight="700" fill="'+(bb.med?AMBER:(ret<0?COLS.neg:"#0B7E58"))+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(ret)+'</text>';
+      svg+='<text x="'+(x+bw/2)+'" y="'+(plotB+14)+'" font-size="9.5" fill="'+(bb.med?AMBER:"#697586")+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+(bb.med?"мед.":((bb.R>0?"+":"")+Math.round(bb.R*100)+"%"))+'</text>';
+    });
+    var cx=gx+(g.bars.length*bw+(g.bars.length-1)*bgap)/2, mons=(S.days[g.t.id]/30.44);
+    var pays=[0.1,0.3,0.5].map(function(R){return grp(dep*(1+clientRet(g.m,R)),0);});
+    svg+='<text x="'+cx+'" y="'+(plotB+34)+'" font-size="12" font-weight="800" fill="#161B22" text-anchor="middle">'+g.t.series+' · '+grp(S.days[g.t.id],0)+' дн (≈'+grp(mons,1)+' мес)</text>';
+    svg+='<text x="'+cx+'" y="'+(plotB+52)+'" font-size="11" fill="#697586" text-anchor="middle">участие '+grp(g.m.part*100,1)+'% · безубыток BTC ≥ +'+grp(g.m.part>0?g.m.risk/g.m.part*100:0,1)+'% · медиана BTC '+pct(g.med)+'</text>';
+    svg+='<text x="'+cx+'" y="'+(plotB+70)+'" font-size="11" fill="#0B7E58" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+grp(dep,0)+' → '+pays[0]+' · '+pays[1]+' · '+pays[2]+'</text>';
+    svg+='<text x="'+cx+'" y="'+(plotB+86)+'" font-size="9.5" fill="#9AA6B2" text-anchor="middle">выплата USDT при BTC +10 / +30 / +50%</text>';
+  });
+  svg+='</svg>';
+  document.getElementById("ichart").innerHTML=svg;
+  document.getElementById("infoNote").innerHTML=
+    "Взнос "+grp(dep,0)+" USDT · риск −"+S.risk+"% · доля клиента "+S.share+"%. Столбики — доходность клиента за срок пакета при данном движении BTC; при любом падении действует «пол» −"+S.risk+"%. <span style=\"color:"+AMBER+";font-weight:700\">Янтарный столбик «мед.»</span> — выплата пакета при медианном росте BTC за такой срок по реальным данным 2021–17.06.2026 (скользящие окна, включая обвал 2022). Иллюстрация выплатной формулы на текущих котировках, не прогноз и не обещание доходности.";
+  renderBadge();
+}
+function renderInfoVs(){
+  var dep=infoDepVal();
+  var t=TERMS.find(function(x){return x.id===S.term;});
+  var m=calc(S.term,S.risk,S.share), med=medBTC(S.days[S.term]);
+  var scns=ISCN.map(function(R){return {R:R,med:false};}).concat([{R:med,med:true}]);
+  var all=[];
+  scns.forEach(function(s){all.push(clientRet(m,s.R));all.push(s.R);});
+  var yMax=Math.max.apply(null,all.concat([0.05])), yMin=Math.min.apply(null,all.concat([-0.22]));
+  var W=940,H=336,padT=40,plotB=236,padL=44;
+  function Y(v){return padT+(yMax-v)/(yMax-yMin)*(plotB-padT);}
+  var y0=Y(0);
+  var bw=52,bgap=8,gw=2*bw+bgap,ggap=26,startX=padL+18;
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Пакет против покупки BTC">';
+  svg+='<text x="'+padL+'" y="16" font-size="12.5" font-weight="800" fill="#161B22">Пакет '+t.series+' · '+grp(S.days[S.term],0)+' дн · риск −'+S.risk+'% · участие '+grp(m.part*100,1)+'%   —   против покупки BTC на ту же сумму</text>';
+  [yMax, yMax/2, 0, yMin/2, yMin].forEach(function(v){
+    svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-8)+'" y2="'+Y(v)+'" stroke="'+(Math.abs(v)<1e-9?"#C6CDD6":"#EDF0F4")+'" stroke-width="'+(Math.abs(v)<1e-9?1.4:1)+'"/>'+
+      '<text x="'+(padL-6)+'" y="'+(Y(v)+4)+'" font-size="10.5" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';
+  });
+  scns.forEach(function(s,i){
+    var gx=startX+i*(gw+ggap);
+    var pr=clientRet(m,s.R), br=s.R;
+    var yv=Y(pr),h=Math.abs(yv-y0),yr=pr>=0?yv:y0; if(h<1.6){h=1.6;yr=pr>=0?y0-1.6:y0;}
+    svg+='<rect x="'+gx+'" y="'+yr.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" rx="4" fill="'+(pr<0?"#E5484D":"#0E9F6E")+'"/>';
+    svg+='<text x="'+(gx+bw/2)+'" y="'+((pr>=0?Math.max(yv-5,28):Math.min(yv+13,plotB-2))).toFixed(1)+'" font-size="10" font-weight="700" fill="'+(pr<0?"#E5484D":"#0B7E58")+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(pr)+'</text>';
+    var x2=gx+bw+bgap;
+    var yv2=Y(br),h2=Math.abs(yv2-y0),yr2=br>=0?yv2:y0; if(h2<1.6){h2=1.6;yr2=br>=0?y0-1.6:y0;}
+    svg+='<rect x="'+x2+'" y="'+yr2.toFixed(1)+'" width="'+bw+'" height="'+h2.toFixed(1)+'" rx="4" fill="#B9C2CC"/>';
+    svg+='<text x="'+(x2+bw/2)+'" y="'+((br>=0?Math.max(yv2-5,28):Math.min(yv2+13,plotB-2))).toFixed(1)+'" font-size="10" font-weight="700" fill="#697586" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(br)+'</text>';
+    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+16)+'" font-size="10.5" font-weight="'+(s.med?800:600)+'" fill="'+(s.med?AMBER:"#161B22")+'" text-anchor="middle">'+(s.med?"медиана 21–26":("BTC "+(s.R>0?"+":"")+Math.round(s.R*100)+"%"))+'</text>';
+    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+32)+'" font-size="9.5" fill="#0B7E58" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+grp(dep*(1+pr),0)+'</text>';
+    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+46)+'" font-size="9.5" fill="#9AA6B2" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">vs '+grp(dep*(1+br),0)+'</text>';
+  });
+  svg+='</svg>';
+  document.getElementById("ichart").innerHTML=svg;
+  document.getElementById("infoNote").innerHTML=
+    "Взнос "+grp(dep,0)+" USDT. <span style=\"color:#0B7E58;font-weight:700\">Зелёный/красный</span> — пакет (выбран в шаге 2), <span style=\"color:#697586;font-weight:700\">серый</span> — просто купить BTC на ту же сумму; под каждой парой — выплата пакета и, ниже, «vs» результат покупки BTC. Слева виден смысл продукта: при обвале BTC −20% пакет держит «пол» −"+S.risk+"%; справа — цена защиты: в росте клиент получает "+grp(m.part*100,1)+"% движения. «Медиана 21–26» — реальный медианный рост BTC за такой срок в 2021–17.06.2026. Не прогноз и не обещание доходности.";
+  renderBadge();
+}
+function renderBadge(){
+  var b=document.getElementById("liveBadge");
+  b.classList.toggle("on",LIVE.on);
+  document.getElementById("liveTxt").textContent=LIVE.txt;
+}
+/* --- рыночные данные: live API -> market.json (вариант B) -> офлайн-марки --- */
+function applyMarket(spot,res,txt,tag){
+  S.spot=Math.round(spot); var ivs=[];
+  res.forEach(function(r){
+    if(!(r.mark>0))throw new Error("mark");
+    S.days[r.slot]=Math.max(1,Math.round((r.ts-Date.now())/86400000));
+    S.q[r.slot]=Math.round(r.mark*100)/100;
+    TERMS.find(function(x){return x.id===r.slot;}).series=String(r.name).split("-").slice(0,2).join("-");
+    if(r.iv)ivs.push(r.iv);
+  });
+  LIVE.on=true; LIVE.txt=txt;
+  var cs=document.getElementById("chipSpot");
+  if(cs)cs.innerHTML="BTC $"+grp(S.spot,0)+" <i>спот · "+tag+"</i>";
+  var cv=document.getElementById("chipVol");
+  if(cv&&ivs.length)cv.innerHTML="IV ≈ "+grp(ivs.reduce(function(a,b){return a+b;},0)/ivs.length,0)+"% <i>марки ATM · "+tag+"</i>";
+  renderAssumptions(); refresh();
+}
+function fetchLive(){
+  var API="https://www.deribit.com/api/v2/public/";
+  function j(u){return fetch(API+u).then(function(r){if(!r.ok)throw new Error("http");return r.json();})
+    .then(function(x){if(x.error||!x.result)throw new Error("api");return x.result;});}
+  j("get_index_price?index_name=btc_usd").then(function(ix){
+    var spot=ix.index_price;
+    return j("get_instruments?currency=BTC&kind=option&expired=false").then(function(list){
+      var now=Date.now(), exps={};
+      list.forEach(function(o){
+        if(o.option_type!=="call")return;
+        var dd=(o.expiration_timestamp-now)/86400000;
+        if(dd<8)return; /* слишком короткие серии пропускаем */
+        (exps[o.expiration_timestamp]=exps[o.expiration_timestamp]||[]).push(o);
+      });
+      var keys=Object.keys(exps).map(Number);
+      if(!keys.length)throw new Error("noexp");
+      var targets={m:30,q:90,h:180}, used={}, chosen={};
+      ["m","q","h"].forEach(function(slot){
+        var best=null,bd=1e18;
+        keys.forEach(function(ts){
+          if(used[ts])return;
+          var dd=(ts-now)/86400000, diff=Math.abs(dd-targets[slot]);
+          if(diff<bd){bd=diff;best=ts;}
+        });
+        if(best!=null){used[best]=1;chosen[slot]=best;}
+      });
+      var proms=["m","q","h"].map(function(slot){
+        var ts=chosen[slot], arr=exps[ts];
+        var atm=arr.reduce(function(a,b){return Math.abs(b.strike-spot)<Math.abs(a.strike-spot)?b:a;});
+        return j("ticker?instrument_name="+encodeURIComponent(atm.instrument_name)).then(function(tk){
+          return {slot:slot,ts:ts,name:atm.instrument_name,mark:(tk.mark_price||0)*100,iv:tk.mark_iv};
+        });
+      });
+      return Promise.all(proms).then(function(res){
+        var d=new Date();function pad(n){return (n<10?"0":"")+n;}
+        applyMarket(spot,res,"live · Deribit · "+pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes()),"live");
+      });
+    });
+  }).catch(function(){ fetchSnapshot(); });
+}
+/* вариант B: ежедневный снапшот market.json, который кладёт GitHub Action */
+function fetchSnapshot(){
+  fetch("market.json?ts="+Date.now()).then(function(r){if(!r.ok)throw new Error("nf");return r.json();})
+  .then(function(mj){
+    var res=["m","q","h"].map(function(slot){
+      var s=mj.slots[slot];
+      return {slot:slot,ts:s.expiry_ts,name:s.series,mark:s.mark_pct,iv:s.iv||0};
+    });
+    var d=new Date(mj.updated);function pad(n){return (n<10?"0":"")+n;}
+    applyMarket(mj.spot,res,"снапшот "+pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()+" · market.json","снапшот");
+  })
+  .catch(function(){ LIVE.on=false; LIVE.txt="офлайн-марки · 20.07.2026"; renderBadge(); });
+}
+
 /* ---------- wiring ---------- */
 function refreshCalc(){
   var m=calc(S.term,S.risk,S.share);
   renderMatrix(); renderStats(m); renderRiskTable(); renderChart(m); renderScen(m); renderReality(m);
+  renderInfographic();
 }
-function refresh(){renderSplit(); renderAmts(); refreshCalc();}
+function refresh(){renderSplit(); renderAmts(); renderInfoModes(); renderInfoDeps(); refreshCalc();}
 
 document.getElementById("principal").addEventListener("input",function(e){
   var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
@@ -491,6 +710,7 @@ document.getElementById("share").addEventListener("input",function(e){
 
 renderAssumptions();
 refresh();
+fetchLive();
 </script>
 </body>
 </html>
