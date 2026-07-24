@@ -181,7 +181,7 @@
       <span class="chip" id="chipSpot">BTC $64 500 <i>спот · 20.07.2026</i></span>
       <span class="chip" id="chipVol">DVOL ≈ 38 <i>14.07: 37,4 · минимумы</i></span>
       <span class="chip">Серии 28AUG / 25SEP / 25DEC <i>Deribit</i></span>
-      <span class="chip">USDT 5% год. <i>надёжная нога</i></span>
+      <span class="chip">USDT 10,8% год. <i>надёжная нога</i></span>
     </div>
   </header>
 
@@ -201,22 +201,22 @@
     <div class="tablewrap">
       <table class="mx"><thead><tr id="mxHead"></tr></thead><tbody id="mxBody"></tbody></table>
     </div>
-    <div class="hint">В ячейках — <b>участие клиента в росте BTC</b> при текущем распределении доходности (шаг 3); мелким — максимум, если весь опционный бюджет отдать клиенту. Риск = насколько ниже взноса может опуститься выплата, если BTC упадёт: это цена участия.</div>
+    <div class="hint">В ячейках — <b>участие клиента в росте BTC</b> при текущем распределении доходности (шаг 3); мелким — максимум после издержек исполнения, если весь бюджет отдать клиенту (при доле 100% участие и есть максимум). Риск = насколько ниже взноса может опуститься выплата, если BTC упадёт: это цена участия.</div>
   </section>
 
   <!-- STEP 3 -->
   <section class="card">
     <div class="card-h"><b>Шаг 3</b> · Распределение доходности: клиент ↔ проект</div>
     <div class="split-top">
-      <b>Доля клиента: <span id="shareLbl" class="mono">70%</span></b>
-      <span class="hint" style="margin:0">делим опционный бюджет: доля клиента идёт в участие, доля проекта — в фиксированную маржу</span>
+      <b>Доля клиента: <span id="shareLbl" class="mono">100%</span></b>
+      <span class="hint" style="margin:0">после издержек исполнения (0,3%) бюджет делится: доля клиента идёт в участие, доля проекта — в маржу. По умолчанию 100% — клиенту: доход проекта только комиссия входа</span>
     </div>
     <div class="split-bar">
-      <div class="split-cli" id="barCli">клиент 70%</div>
-      <div class="split-prj" id="barPrj">проект 30%</div>
+      <div class="split-cli" id="barCli">клиент 100%</div>
+      <div class="split-prj" id="barPrj">проект 0%</div>
     </div>
-    <input type="range" id="share" min="20" max="80" step="1" value="70" />
-    <div class="split-scale"><span>20% клиенту</span><span>50/50</span><span>80% клиенту</span></div>
+    <input type="range" id="share" min="0" max="100" step="1" value="100" />
+    <div class="split-scale"><span>0% клиенту</span><span>50/50</span><span>100% клиенту</span></div>
   </section>
 
   <!-- RESULTS -->
@@ -320,8 +320,8 @@ var AMOUNTS=[10000,25000,50000,80000,100000,250000];
 
 /* ---------- state ---------- */
 var S={
-  principal:80000, term:"m", risk:3, share:70,
-  spot:64500, yieldPct:5, slipPct:0.3, entryPct:1,
+  principal:80000, term:"m", risk:3, share:100,
+  spot:64500, yieldPct:10.8, slipPct:0.3, entryPct:1,
   days:{m:39, q:67, h:158},          /* дней до экспирации серии — редактируется */
   q:{m:5.20, q:7.25, h:11.95}        /* марки ATM-коллов, % от спота, 20.07.2026 — редактируются */
 };
@@ -343,9 +343,10 @@ function calc(slot,riskPct,sharePct){
   var d=S.days[slot]||1, T=d/365, r=S.yieldPct/100, DF=Math.pow(1+r,-T),
       prot=1-riskPct/100, budget=1-prot*DF,
       call=(S.q[slot]||0)/100,
-      maxPart=call>0?budget/call:0,
+      spendable=Math.max(0,budget - S.slipPct/100),  /* бюджет после издержек исполнения */
+      maxPart=call>0?spendable/call:0,
       part=(sharePct/100)*maxPart,
-      margin=(1-sharePct/100)*budget - S.slipPct/100 + S.entryPct/100,
+      margin=(1-sharePct/100)*spendable + S.entryPct/100,
       reserve=prot*DF;
   return {d:d,T:T,DF:DF,prot:prot,budget:budget,call:call,maxPart:maxPart,part:part,
           margin:margin,reserve:reserve,risk:riskPct/100};
