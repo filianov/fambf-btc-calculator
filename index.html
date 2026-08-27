@@ -3,639 +3,319 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FAMBF — Клиентский калькулятор: защита капитала в USDT + участие в росте BTC</title>
-<meta name="description" content="Клиентский калькулятор структурного продукта FAMBF: выбор срока и риска (2/3/5%), распределение доходности 20–80%, котировки Deribit на 20.07.2026 (редактируемые)." />
+<title>HedgeUp — защита капитала и участие в росте биткойна | FAMBF</title>
+<meta name="description" content="Простой калькулятор: сумма, срок, допустимый риск — и кривая доходности вклада с защитой капитала в USDT и участием в росте BTC." />
 <style>
   :root{
-    --ink:#0E1217; --ink2:#161B22; --paper:#F4F6F8; --card:#FFFFFF;
-    --line:#E2E6EC; --line2:#EEF1F5; --muted:#697586; --text:#161B22;
-    --accent:#0E9F6E; --accent2:#E4F5EE; --accent-d:#0B7E58;
-    --red:#E5484D; --red2:#FCE9E9; --amber:#B5791F; --amber2:#FBF1DE;
-    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
-    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --ink:#0E1217; --paper:#F4F6F8; --card:#FFFFFF; --line:#E2E6EC; --line2:#EEF1F5;
+    --muted:#697586; --text:#161B22; --accent:#0E9F6E; --accent2:#E4F5EE; --accent-d:#0B7E58;
+    --red:#E5484D; --amber:#B5791F; --amber2:#FBF1DE;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   }
   *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--paper);color:var(--text);font-family:var(--sans);line-height:1.45;font-size:15px}
+  body{margin:0;background:var(--paper);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.45}
   .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-  a{color:var(--accent-d);text-decoration:none}
-  a:hover{text-decoration:underline}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 18px 64px}
-
-  /* brand bar */
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px 64px}
   .topbar{background:var(--ink);color:#EAF0F4}
-  .topbar-in{max-width:1080px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .brand-logo{height:26px;width:auto;display:block;background:#fff;border-radius:8px;padding:5px 9px}
-  .foot-logo{height:26px;width:auto;display:block;background:#fff;border-radius:8px;padding:5px 9px}
-  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:12.5px}
-  .topbar-right .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;box-shadow:0 0 0 3px rgba(14,159,110,.18)}
-  .topbar-right a{color:#C7D0D9}
-  .sys{color:#9AA6B2}
-
-  /* hero */
-  header.hero{padding:26px 0 8px}
+  .topbar-in{max-width:1000px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand-logo{height:26px;background:#fff;border-radius:8px;padding:5px 9px;display:block}
+  .topbar-right{margin-left:auto;font-size:12.5px;color:#9AA6B2}
+  #dataBadge.live{color:#8FD4B4}
+  #dataBadge.live:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#0E9F6E;margin-right:6px;vertical-align:middle;box-shadow:0 0 0 3px rgba(14,159,110,.22)}
+  .topbar-right a{color:#C7D0D9;text-decoration:none;margin-left:14px}
+  header.hero{padding:26px 0 4px}
   .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-d);font-weight:800}
-  h1{font-size:26px;line-height:1.14;margin:7px 0 8px;font-weight:800;letter-spacing:-.012em}
-  .lede{margin:0;color:var(--muted);font-size:14px;max-width:74ch}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-  .chip{font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:600}
-  .chip i{font-style:normal;color:var(--muted);font-weight:500;margin-left:5px}
-
+  h1{font-size:27px;margin:7px 0 8px;font-weight:800;letter-spacing:-.012em}
+  .lede{margin:0;color:var(--muted);font-size:14.5px;max-width:70ch}
   .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 16px 18px;margin-top:14px}
-  .card-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;
-    margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line2)}
+  .card-h{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:13px;padding-bottom:9px;border-bottom:1px solid var(--line2)}
   .card-h b{color:var(--accent-d)}
-  .hint{font-size:12px;color:var(--muted);margin-top:9px}
-
-  /* step 1: deposit */
-  .dep-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:9px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .dep-input{display:flex;align-items:center;gap:8px;background:#FFFDF2;border:1px solid #E6DFC2;border-radius:11px;padding:9px 13px}
-  .dep-input input{font:inherit;font-family:var(--mono);font-size:20px;font-weight:700;border:none;background:transparent;
-    width:150px;color:#0A4DA6;outline:none}
+  .dep-input input{font:inherit;font-family:var(--mono);font-size:21px;font-weight:700;border:none;background:transparent;width:150px;color:#0A4DA6;outline:none}
   .dep-input span{font-size:13px;color:var(--muted);font-weight:600}
-  .amt{font:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:9px;cursor:pointer;
-    border:1px solid var(--line);background:var(--card);color:var(--text);transition:.12s}
-  .amt:hover{border-color:var(--accent)}
-  .amt.on{background:var(--accent);border-color:var(--accent);color:#fff}
-
-  /* step 2: matrix */
-  .mx{width:100%;border-collapse:separate;border-spacing:7px;table-layout:fixed}
-  .mx th{font-size:11.5px;color:var(--muted);font-weight:700;padding:2px 4px;text-align:center}
-  .mx th.risk{width:118px;text-align:left}
-  .mx th .ser{display:block;font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent-d);margin-top:2px}
-  .mx td.risklbl{font-size:12.5px;font-weight:700;text-align:left;vertical-align:middle;padding-right:2px}
-  .mx td.risklbl i{display:block;font-style:normal;font-weight:500;font-size:11px;color:var(--muted)}
-  .mcell{width:100%;font:inherit;cursor:pointer;border:1.5px solid var(--line);border-radius:11px;background:var(--card);
-    padding:10px 6px 9px;text-align:center;transition:.12s}
-  .mcell:hover{border-color:var(--accent)}
-  .mcell.on{border-color:var(--accent);background:var(--accent2);box-shadow:0 0 0 3px rgba(14,159,110,.14)}
-  .mcell .p{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--accent-d);letter-spacing:-.01em}
-  .mcell .mx-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
-  @media (max-width:640px){ .mx{border-spacing:4px} .mcell .p{font-size:16px} .mx th.risk{width:84px} .mcell .mx-sub{font-size:9.5px} }
-
-  /* step 3: split */
-  .split-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-  .split-top b{font-size:15px}
-  .split-bar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
-  .split-cli{background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
-    font-size:12.5px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;transition:width .12s}
-  .split-prj{background:var(--ink);color:#DFE6EC;display:flex;align-items:center;justify-content:center;
-    font-size:12.5px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;transition:width .12s}
-  input[type=range]{width:100%;accent-color:var(--accent);margin:13px 0 2px;height:26px}
-  .split-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)}
-
-  /* stats */
+  .amt,.pill{font:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);transition:.12s}
+  .amt:hover,.pill:hover{border-color:var(--accent)}
+  .amt.on,.pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .pill small{display:block;font-weight:600;font-size:10px;opacity:.75;margin-top:1px}
+  .risk-top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .risk-val{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--accent-d)}
+  input[type=range]{width:100%;accent-color:var(--accent);height:28px;margin:6px 0 0}
+  .risk-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .zone{font-size:12.5px;margin-top:8px;color:var(--muted)}
+  .zone.warn{color:#7A5410;background:var(--amber2);border:1px solid #EAD9B4;border-radius:9px;padding:8px 11px}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
-  @media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+  @media (max-width:760px){.stats{grid-template-columns:1fr}}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
   .stat.accent{background:var(--accent2);border-color:#CDEBDD}
-  .stat.dark{background:var(--ink);border-color:var(--ink);color:#EAF0F4}
-  .stat.dark .stat-k{color:#9AA6B2}
-  .stat.dark .stat-sub{color:#9AA6B2}
-  .stat-k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .stat-v{font-family:var(--mono);font-size:21px;font-weight:800;margin-top:4px;letter-spacing:-.01em}
-  .stat-v.red{color:var(--red)}
+  .stat-k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .stat-v{font-family:var(--mono);font-size:23px;font-weight:800;margin-top:4px;letter-spacing:-.01em}
   .stat-v.green{color:var(--accent-d)}
-  .stat-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
-
-  /* tables */
-  .tablewrap{overflow-x:auto}
-  table.t{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
-  .t th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;
-    text-align:left;padding:7px 9px;border-bottom:1.5px solid var(--line)}
-  .t td{padding:8px 9px;border-bottom:1px solid var(--line2)}
-  .t th.r,.t td.r{text-align:right}
-  .t tr.on td{background:var(--accent2)}
-  .t tr.zero td{background:#FAFBFC}
-  .up{color:var(--accent-d);font-weight:700}
-  .dn{color:var(--red);font-weight:700}
-  .flat{color:var(--muted)}
-
-  /* chart */
+  .stat-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
   .chart svg{width:100%;height:auto;display:block}
-  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px;align-items:center}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:8px;align-items:center}
   .sw{display:inline-block;width:16px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
-  .sw-a{background:var(--accent)}
-  .sw-g{background:#B9C2CC}
-  .be{margin-left:auto;font-weight:700;color:var(--ink)}
-
-  /* assumptions */
-  .as-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .tablewrap{overflow-x:auto}
+  table.t{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+  .t th{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:8px 9px;border-bottom:1.5px solid var(--line)}
+  .t td{padding:9px;border-bottom:1px solid var(--line2)}
+  .t th.r,.t td.r{text-align:right}
+  .t tr.be td{background:var(--accent2);font-weight:700}
+  .t tr.zero td{background:#FAFBFC}
+  .up{color:var(--accent-d);font-weight:700}.dn{color:var(--red);font-weight:700}.flat{color:var(--muted)}
+  details.params{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  details.params summary{cursor:pointer;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+  .as-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
   @media (max-width:760px){.as-grid{grid-template-columns:repeat(2,1fr)}}
-  .as{background:#FCFDFE;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
-  .as label{display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.03em}
-  .as input{font:inherit;font-family:var(--mono);font-weight:700;font-size:15px;border:none;background:transparent;
-    width:100%;color:#0A4DA6;outline:none;margin-top:2px}
+  .as{background:#FCFDFE;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .as label{display:block;font-size:11px;color:var(--muted);font-weight:700}
+  .as input{font:inherit;font-family:var(--mono);font-weight:700;font-size:15px;border:none;background:transparent;width:100%;color:#0A4DA6;outline:none;margin-top:2px}
   .as .u{font-size:11px;color:var(--muted)}
-  .as.q label b{color:var(--accent-d)}
-
-  /* live infographic */
-  .card-h.flex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .live-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);
-    border:1px solid var(--line);border-radius:999px;padding:4px 10px;margin-left:auto;text-transform:none;letter-spacing:0}
-  .live-badge .ld{width:7px;height:7px;border-radius:50%;background:#B5791F;flex:0 0 auto}
-  .live-badge.on{color:var(--accent-d);border-color:#CDEBDD}
-  .live-badge.on .ld{background:var(--accent);box-shadow:0 0 0 3px rgba(14,159,110,.16)}
-  .info-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-  .info-controls .lbl{font-size:12px;color:var(--muted);font-weight:600;margin-right:2px}
-  .ichart svg{width:100%;height:auto;display:block}
-  .info-note{font-size:12px;color:var(--muted);margin-top:9px}
-
-  /* reality strip */
-  .reality{margin-top:14px;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.5;
-    background:var(--amber2);border:1px solid #EAD9B4;color:#4C3A10}
-
-  /* footer */
+  .summary{margin-top:14px;border-radius:12px;padding:13px 15px;font-size:14px;line-height:1.55;background:var(--accent2);border:1px solid #CDEBDD}
   footer{margin-top:30px;background:var(--ink);color:#C7D0D9}
-  .foot-in{max-width:1080px;margin:0 auto;padding:20px 18px 24px}
+  .foot-in{max-width:1000px;margin:0 auto;padding:20px 18px 24px}
   .foot-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}
-  .foot-tag{font-size:12px;color:#9AA6B2}
   .foot-links{margin-left:auto;display:flex;gap:16px;font-size:12.5px}
-  .foot-links a{color:#C7D0D9}
-  .foot-contact{font-size:12.5px;border-top:1px solid #232A33;padding-top:12px;color:#9AA6B2}
-  .foot-contact a{color:#C7D0D9}
-  .foot-disc{font-size:11px;color:#77828E;margin-top:8px;line-height:1.5}
-  @media (max-width:640px){ h1{font-size:22px} .stat-v{font-size:18px} .topbar-right{font-size:11.5px;gap:12px} }
+  .foot-links a{color:#C7D0D9;text-decoration:none}
+  .foot-disc{font-size:11.5px;color:#77828E;margin-top:10px;line-height:1.5;border-top:1px solid #232A33;padding-top:11px}
+  @media (max-width:640px){h1{font-size:22px}.stat-v{font-size:20px}}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="topbar-in">
-    <div class="brand">
-      <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF — Mandate-Backed Finance" class="brand-logo" />
-    </div>
-    <div class="topbar-right">
-      <span class="sys"><span class="dot"></span>Котировки Deribit · 20.07.2026</span>
-      <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
-    </div>
-  </div>
-</div>
+<div class="topbar"><div class="topbar-in">
+  <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF" class="brand-logo"/>
+  <span class="topbar-right"><span id="dataBadge">котировки на 26.08.2026</span> <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a></span>
+</div></div>
 
 <div class="wrap">
-  <header class="hero">
-    <div class="eyebrow">Клиентский калькулятор</div>
-    <h1>Защита капитала в USDT + участие в росте BTC</h1>
-    <p class="lede">Три шага: сумма → срок и допустимый риск → распределение доходности. Все цифры пересчитываются мгновенно на котировках опционов Deribit на 20 июля 2026. Котировки и дни до экспирации редактируются в блоке «Допущения» — страница не устаревает.</p>
-    <div class="chips">
-      <span class="chip" id="chipSpot">BTC $64 500 <i>спот · 20.07.2026</i></span>
-      <span class="chip" id="chipVol">DVOL ≈ 38 <i>14.07: 37,4 · минимумы</i></span>
-      <span class="chip">Серии 28AUG / 25SEP / 25DEC <i>Deribit</i></span>
-      <span class="chip">USDT 10,8% год. <i>надёжная нога</i></span>
-    </div>
-  </header>
+<header class="hero">
+  <div class="eyebrow">Калькулятор вклада</div>
+  <h1>HedgeUp: защита капитала и участие в росте биткойна</h1>
+  <p class="lede">Три шага: сумма, срок, допустимый риск. Дальше вы сразу видите, сколько вернётся при любом падении биткойна и сколько вы получите при его росте.</p>
+</header>
 
-  <!-- STEP 1 -->
-  <section class="card">
-    <div class="card-h"><b>Шаг 1</b> · Взнос клиента</div>
-    <div class="dep-row">
-      <div class="dep-input"><input id="principal" inputmode="numeric" value="80 000" /><span>USDT</span></div>
-      <div id="amts"></div>
-    </div>
-    <div class="hint">Комиссия на входе (по умолчанию 1%) взимается сверх взноса и не уменьшает рабочее тело.</div>
-  </section>
+<section class="card">
+  <div class="card-h"><b>Шаг 1</b> · Сумма вклада</div>
+  <div class="row">
+    <div class="dep-input"><input id="principal" inputmode="numeric" value="100 000"/><span>USDT</span></div>
+    <span id="amts"></span>
+  </div>
+</section>
 
-  <!-- STEP 2 -->
-  <section class="card">
-    <div class="card-h"><b>Шаг 2</b> · Срок и допустимый риск (максимальная просадка клиента)</div>
-    <div class="tablewrap">
-      <table class="mx"><thead><tr id="mxHead"></tr></thead><tbody id="mxBody"></tbody></table>
-    </div>
-    <div class="hint">В ячейках — <b>участие клиента в росте BTC</b> при текущем распределении доходности (шаг 3); мелким — максимум после издержек исполнения, если весь бюджет отдать клиенту (при доле 100% участие и есть максимум). Риск = насколько ниже взноса может опуститься выплата, если BTC упадёт: это цена участия.</div>
-  </section>
+<section class="card">
+  <div class="card-h"><b>Шаг 2</b> · Срок размещения</div>
+  <div class="row" id="terms"></div>
+</section>
 
-  <!-- STEP 3 -->
-  <section class="card">
-    <div class="card-h"><b>Шаг 3</b> · Распределение доходности: клиент ↔ проект</div>
-    <div class="split-top">
-      <b>Доля клиента: <span id="shareLbl" class="mono">100%</span></b>
-      <span class="hint" style="margin:0">после издержек исполнения (0,3%) бюджет делится: доля клиента идёт в участие, доля проекта — в маржу. По умолчанию 100% — клиенту: доход проекта только комиссия входа</span>
-    </div>
-    <div class="split-bar">
-      <div class="split-cli" id="barCli">клиент 100%</div>
-      <div class="split-prj" id="barPrj">проект 0%</div>
-    </div>
-    <input type="range" id="share" min="0" max="100" step="1" value="100" />
-    <div class="split-scale"><span>0% клиенту</span><span>50/50</span><span>100% клиенту</span></div>
-  </section>
+<section class="card">
+  <div class="card-h"><b>Шаг 3</b> · Допустимый риск — насколько вклад может уменьшиться в худшем случае</div>
+  <div class="risk-top">
+    <span class="risk-val" id="riskVal">3%</span>
+    <span class="hint" style="margin:0">чем больше риск вы допускаете, тем больше ваша доля в росте биткойна</span>
+  </div>
+  <input type="range" id="risk" min="1" max="10" step="1" value="3"/>
+  <div class="risk-scale"><span>1%</span><span>5%</span><span>10%</span></div>
+  <div class="zone" id="zone"></div>
+</section>
 
-  <!-- RESULTS -->
-  <section class="stats" id="stats"></section>
+<section class="stats" id="stats"></section>
 
-  <!-- LIVE INFOGRAPHIC -->
-  <section class="card">
-    <div class="card-h flex"><span><b>Ожидания по пакетам</b> · сценарии на живых котировках</span>
-      <span class="live-badge" id="liveBadge"><span class="ld"></span><span id="liveTxt">офлайн-марки · 20.07.2026</span></span></div>
-    <div class="info-controls"><span class="lbl">Режим:</span><span id="infoModes"></span>
-      <span class="lbl" style="margin-left:12px">Взнос для расчёта:</span><span id="infoDeps"></span></div>
-    <div class="ichart" id="ichart"></div>
-    <div class="info-note" id="infoNote"></div>
-  </section>
+<section class="card">
+  <div class="card-h">Кривая доходности · сколько вы получите при разном движении биткойна</div>
+  <div class="chart" id="chart"></div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--accent)"></i> ваш вклад</span>
+    <span><i class="sw" style="background:#B9C2CC"></i> если просто купить биткойн</span>
+    <span id="beLeg" style="margin-left:auto;font-weight:700;color:var(--ink)"></span>
+  </div>
+  <div class="hint" id="chartNote"></div>
+</section>
 
-  <!-- RISK -> RETURN -->
-  <section class="card">
-    <div class="card-h" id="rtH">Риск → доходность</div>
-    <div class="tablewrap">
-      <table class="t">
-        <thead><tr>
-          <th>Риск (макс. просадка)</th><th class="r">Участие клиента</th>
-          <th class="r">BTC +10%</th><th class="r">BTC +30%</th><th class="r">BTC +50%</th>
-        </tr></thead>
-        <tbody id="rtBody"></tbody>
-      </table>
-    </div>
-    <div class="hint">Доходность клиента <b>за срок пакета</b> при выбранном распределении доходности. Сценарии роста BTC — условные; при падении BTC клиент получает ровно «взнос − риск».</div>
-  </section>
+<section class="card">
+  <div class="card-h" id="tabH">Сценарии</div>
+  <div class="tablewrap"><table class="t">
+    <thead><tr><th>Биткойн за срок</th><th class="r">Вы получаете</th><th class="r">Ваш результат</th><th>Что это значит</th></tr></thead>
+    <tbody id="scenBody"></tbody>
+  </table></div>
+</section>
 
-  <!-- CHART -->
-  <section class="card">
-    <div class="card-h">Выплата клиенту в зависимости от BTC · выбранная конфигурация</div>
-    <div class="chart" id="chart"></div>
-    <div class="legend">
-      <span><i class="sw sw-a"></i> доходность клиента</span>
-      <span><i class="sw sw-g"></i> BTC «в лоб» (без защиты)</span>
-      <span class="be" id="be"></span>
-    </div>
-  </section>
+<div class="summary" id="summary"></div>
 
-  <!-- SCENARIOS -->
-  <section class="card">
-    <div class="card-h">Сценарии для взноса <span id="scenDep" class="mono"></span> USDT</div>
-    <div class="tablewrap">
-      <table class="t">
-        <thead><tr>
-          <th>BTC</th><th class="r">Цена BTC</th><th class="r">Клиент получает</th>
-          <th class="r">Доход клиента</th><th class="r">Маржа проекта</th>
-        </tr></thead>
-        <tbody id="scenBody"></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ASSUMPTIONS -->
-  <section class="card">
-    <div class="card-h">Допущения и котировки · правьте при необходимости</div>
-    <div class="as-grid" id="asGrid"></div>
-    <div class="hint">Котировки коллов — модельные марки на 20.07.2026 (DVOL≈38, терм-структура в контанго). Перед сделкой откройте серию в терминале Deribit (deribit.com/options/BTC), впишите её mark price в % от спота (mark в BTC × 100) и актуальное число дней до экспирации — калькулятор пересчитает участие и маржу по факту. Когда серия истечёт, впишите сюда новую серию: её дни и марку.</div>
-  </section>
-
-  <div class="reality" id="reality"></div>
+<details class="params">
+  <summary>Параметры расчёта · рыночные данные на 26.08.2026</summary>
+  <div class="as-grid" id="asGrid"></div>
+  <div class="hint">Цены опционов страница берёт с биржи Deribit автоматически при каждом открытии; если биржа недоступна — из ежедневного снапшота, иначе из значений ниже. Сроки 30/60/90/180 дней исполняются ближайшими торгуемыми сериями, поэтому фактическое число дней и дата окончания могут немного отличаться.</div>
+</details>
 </div>
 
-<footer>
-  <div class="foot-in">
-    <div class="foot-top">
-      <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF" class="foot-logo" />
-      <span class="foot-tag">Framework for Automated, Mandate-Backed Finance</span>
-      <span class="foot-links">
-        <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
-        <a href="https://cal.com/fambf/discovery" target="_blank" rel="noopener">Записаться на звонок</a>
-        <a href="https://www.linkedin.com/in/pavlofilianov/" target="_blank" rel="noopener">LinkedIn</a>
-      </span>
-    </div>
-    <div class="foot-contact">
-      Разработано <b>FAMBF</b> · Подготовил: <b>Pavlo Filianov</b>, Founder &nbsp;·&nbsp;
-      <a href="mailto:pavlo@fambf.com">pavlo@fambf.com</a> &nbsp;·&nbsp; <b>fambf.com</b>
-    </div>
-    <div class="foot-disc">Не котировка, не оферта и не инвестиционная рекомендация. Защита тела действует на дату погашения периода; ключевые риски — контрагент/биржа, USDT, надёжность размещения. FAMBF не обещает доходность.</div>
+<footer><div class="foot-in">
+  <div class="foot-top">
+    <img src="https://fambf.com/assets/brand/logo-primary.svg" alt="FAMBF" class="brand-logo"/>
+    <span class="foot-links">
+      <a href="https://fambf.com" target="_blank" rel="noopener">fambf.com</a>
+      <a href="https://cal.com/fambf/discovery" target="_blank" rel="noopener">Записаться на звонок</a>
+      <a href="mailto:pavlo@fambf.com">pavlo@fambf.com</a>
+    </span>
   </div>
-</footer>
+  <div class="foot-disc">Расчёт носит иллюстративный характер и не является офертой, котировкой, гарантией доходности или инвестиционной рекомендацией. Все суммы показаны как итог на руки, после комиссий. Защита вклада действует на дату окончания срока. Ключевые риски: надёжность биржи-контрагента, привязка USDT к доллару, качество размещения средств. FAMBF не обещает доходность.</div>
+</div></footer>
 
 <script>
-/* ---------- utils ---------- */
-function grp(n,dec){var neg=n<0;n=Math.abs(n);var parts=n.toFixed(dec==null?0:dec).split(".");
-  var dig=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g," ");
-  return (neg?"−":"")+dig+(parts[1]?","+parts[1]:"");}
-function pct(x,dec){return (x>0?"+":"")+grp(x*100,dec==null?1:dec)+"%";}
+/* ==== настройка (правится вручную) ==== */
+var SHARE=0.20;   /* доля проекта в прибыли клиента; результаты на странице показаны уже за её вычетом */
 
-/* ---------- market data · Deribit, 20.07.2026 (редактируется в «Допущениях») ---------- */
+function grp(n,dec){var neg=n<0;n=Math.abs(n);var p=n.toFixed(dec==null?0:dec).split(".");
+  return (neg?"−":"")+p[0].replace(/\B(?=(\d{3})+(?!\d))/g," ")+(p[1]?","+p[1]:"");}
+function pct(x,d){return (x>0?"+":(x<0?"−":""))+grp(Math.abs(x*100),d==null?1:d)+"%";}
+
 var TERMS=[
-  {id:"m", label:"~30 дней",  series:"BTC-28AUG26"},
-  {id:"q", label:"~90 дней",  series:"BTC-25SEP26"},
-  {id:"h", label:"~180 дней", series:"BTC-25DEC26"}
-];
-var RISKS=[2,3,5];
-var SCN=[-0.5,-0.3,-0.1,0,0.1,0.3,0.5,1.0];
-var AMOUNTS=[10000,25000,50000,80000,100000,250000];
+  {id:"s30", label:"30 дней"},
+  {id:"s60", label:"60 дней"},
+  {id:"s90", label:"90 дней"},
+  {id:"s180",label:"180 дней"}];
+var AMOUNTS=[10000,50000,100000,250000];
+var S={P:100000, term:"s30", X:3, spot:79000, yieldPct:10.8, slipPct:0.3,
+       days:{s30:30, s60:65, s90:93, s180:212},
+       dates:{s30:"25.09.2026", s60:"30.10.2026", s90:"27.11.2026", s180:"26.03.2027"},
+       q:{s30:5.34, s60:7.81, s90:9.22, s180:14.28}};
+var LIVE={on:false, txt:"котировки на 26.08.2026"};
 
-/* ---------- state ---------- */
-var S={
-  principal:80000, term:"m", risk:3, share:100,
-  spot:64500, yieldPct:10.8, slipPct:0.3, entryPct:1,
-  days:{m:39, q:67, h:158},          /* дней до экспирации серии — редактируется */
-  q:{m:5.20, q:7.25, h:11.95}        /* марки ATM-коллов, % от спота, 20.07.2026 — редактируются */
-};
-/* live-инфографика */
-var LIVE={on:false, txt:"офлайн-марки · 20.07.2026"};
-var INFO_DEPS=[10000,100000,"self"];
-S.infoDep=10000;
-var ISCN=[-0.2,0,0.1,0.3,0.5];       /* сценарии BTC для инфографики */
-/* медианный рост BTC за k месяцев по реальным данным 2021 – 17.06.2026 (Coin Metrics, 61–66 скользящих окон) */
-var MED={1:0.0137,2:0.0351,3:0.0212,4:0.0224,5:0.0508,6:0.1474};
-function medBTC(days){
-  var m=Math.min(6,Math.max(1,days/30.44)),f=Math.floor(m),c=Math.min(6,f+1),w=m-f;
-  return MED[f]*(1-w)+MED[c]*w;
+function calc(){
+  var d=S.days[S.term]||1, T=d/365, y=S.yieldPct/100, DF=Math.pow(1+y,-T), X=S.X/100,
+      q=(S.q[S.term]||0)/100,
+      reserve=(1-X)*DF, budget=1-reserve, sp=Math.max(0,budget-S.slipPct/100),
+      N=Math.min(1, q>0?sp/q:0), BE=N>0?X/N:0,
+      eff=N*(1-SHARE),
+      Xcap=1-(1-q-S.slipPct/100)/DF;
+  function net(R){var g=-X+N*Math.max(0,R); return g-SHARE*Math.max(0,g);}
+  return {d:d,X:X,N:N,BE:BE,eff:eff,Xcap:Xcap,floor:(1-X)*S.P,net:net};
 }
-S.infoMode="pkgs";                    /* "pkgs" — три пакета · "vs" — пакет против BTC */
 
-/* ---------- math ---------- */
-function calc(slot,riskPct,sharePct){
-  var d=S.days[slot]||1, T=d/365, r=S.yieldPct/100, DF=Math.pow(1+r,-T),
-      prot=1-riskPct/100, budget=1-prot*DF,
-      call=(S.q[slot]||0)/100,
-      spendable=Math.max(0,budget - S.slipPct/100),  /* бюджет после издержек исполнения */
-      maxPart=call>0?spendable/call:0,
-      part=(sharePct/100)*maxPart,
-      margin=(1-sharePct/100)*spendable + S.entryPct/100,
-      reserve=prot*DF;
-  return {d:d,T:T,DF:DF,prot:prot,budget:budget,call:call,maxPart:maxPart,part:part,
-          margin:margin,reserve:reserve,risk:riskPct/100};
-}
-function clientRet(m,R){return -m.risk + m.part*Math.max(0,R);}
-
-/* ---------- renders ---------- */
 function renderAmts(){
-  var box=document.getElementById("amts"); box.innerHTML="";
-  AMOUNTS.forEach(function(a){
-    var b=document.createElement("button");
-    b.className="amt"+(S.principal===a?" on":"");
-    b.textContent=grp(a,0);
-    b.addEventListener("click",function(){S.principal=a;
+  var b=document.getElementById("amts");b.innerHTML="";
+  AMOUNTS.forEach(function(a){var el=document.createElement("button");
+    el.className="amt"+(S.P===a?" on":"");el.textContent=grp(a,0);
+    el.addEventListener("click",function(){S.P=a;
       document.getElementById("principal").value=grp(a,0);refresh();});
-    box.appendChild(b);
-  });
+    b.appendChild(el);});
 }
-function renderMatrix(){
-  var h=document.getElementById("mxHead");
-  h.innerHTML='<th class="risk">Риск \\ Срок</th>'+TERMS.map(function(t){
-    return '<th>'+t.label+'<span class="ser">'+t.series+' · '+grp(S.days[t.id],0)+' дн · марка '+grp(S.q[t.id],2)+'%</span></th>';}).join("");
-  var b=document.getElementById("mxBody"); b.innerHTML="";
-  RISKS.forEach(function(rk){
-    var tr=document.createElement("tr");
-    var lbl=document.createElement("td");
-    lbl.className="risklbl";
-    lbl.innerHTML="−"+rk+"%<i>защита "+grp(100-rk,0)+"%</i>";
-    tr.appendChild(lbl);
-    TERMS.forEach(function(t){
-      var m=calc(t.id,rk,S.share);
-      var td=document.createElement("td");
-      var btn=document.createElement("button");
-      btn.className="mcell"+(S.term===t.id&&S.risk===rk?" on":"");
-      btn.innerHTML='<div class="p">'+grp(m.part*100,1)+'%</div>'+
-        '<div class="mx-sub">участие · макс '+grp(m.maxPart*100,0)+'%</div>';
-      btn.addEventListener("click",function(){S.term=t.id;S.risk=rk;refresh();});
-      td.appendChild(btn); tr.appendChild(td);
-    });
-    b.appendChild(tr);
-  });
+function renderTerms(){
+  var b=document.getElementById("terms");b.innerHTML="";
+  TERMS.forEach(function(t){var el=document.createElement("button");
+    el.className="pill"+(S.term===t.id?" on":"");
+    el.innerHTML=t.label+"<small>до "+S.dates[t.id]+" · "+grp(S.days[t.id],0)+" дн</small>";
+    el.addEventListener("click",function(){S.term=t.id;refresh();});
+    b.appendChild(el);});
 }
-function renderSplit(){
-  document.getElementById("shareLbl").textContent=S.share+"%";
-  var c=document.getElementById("barCli"), p=document.getElementById("barPrj");
-  c.style.width=S.share+"%"; p.style.width=(100-S.share)+"%";
-  c.textContent="клиент "+S.share+"%"; p.textContent="проект "+(100-S.share)+"%";
+function renderRisk(m){
+  document.getElementById("riskVal").textContent=S.X+"%";
+  var z=document.getElementById("zone");
+  if(S.X/100<=m.Xcap){
+    z.className="";
+    z.innerHTML="";
+  }else{
+    z.className="zone warn";
+    z.innerHTML="Доля в росте уже максимальная (<b>"+grp(m.eff*100,0)+"%</b>) — дальше увеличивать риск невыгодно: вклад защищён слабее, а доля не растёт. Оптимально для этого срока — около "+grp(m.Xcap*100,0)+"%.";
+  }
 }
 function renderStats(m){
-  var t=TERMS.find(function(x){return x.id===S.term;});
-  var annM=Math.pow(1+m.margin,365/m.d)-1;
   document.getElementById("stats").innerHTML=
-    st("Участие клиента в росте BTC",'<span class="green">'+grp(m.part*100,1)+"%</span>",
-       "максимум при этих котировках: "+grp(m.maxPart*100,1)+"%","accent")+
-    st("Максимальная просадка клиента",'<span class="red">−'+S.risk+"%</span>",
-       "если BTC упадёт: выплата не ниже "+grp(m.prot*100,0)+"% взноса")+
-    st("Маржа проекта · фикс.",grp(m.margin*S.principal,0)+" <i style='font-size:12px'>USDT</i>",
-       grp(m.margin*100,2)+"% за период · ≈"+grp(annM*100,1)+"% год. · не зависит от BTC","dark")+
-    st("Котировка ATM-колла · "+t.series,grp(m.call*100,2)+"%",
-       "≈ "+grp(m.call*S.spot,0)+" USDT за 1 BTC номинала · срок "+grp(m.d,0)+" дн")+
-    st("Опционный бюджет",grp(m.budget*100,2)+"%",
-       grp(m.budget*S.principal,0)+" USDT · клиенту "+S.share+"% / проекту "+(100-S.share)+"%")+
-    st("Резерв в надёжную ногу",grp(m.reserve*S.principal,0)+" <i style='font-size:12px'>USDT</i>",
-       "дорастает до "+grp(m.prot*100,0)+"% взноса к погашению · USDT "+grp(S.yieldPct,1)+"% год.");
-  function st(k,v,sub,cls){return '<div class="stat'+(cls?" "+cls:"")+'"><div class="stat-k">'+k+
-    '</div><div class="stat-v">'+v+'</div><div class="stat-sub">'+sub+'</div></div>';}
-}
-function renderRiskTable(){
-  var t=TERMS.find(function(x){return x.id===S.term;});
-  document.getElementById("rtH").innerHTML="Риск → доходность · срок <b>"+t.label+"</b> ("+t.series+" · "+grp(S.days[S.term],0)+" дн) · доля клиента "+S.share+"%";
-  var b=document.getElementById("rtBody"); b.innerHTML="";
-  RISKS.forEach(function(rk){
-    var m=calc(S.term,rk,S.share), tr=document.createElement("tr");
-    if(rk===S.risk)tr.className="on";
-    tr.innerHTML='<td>−'+rk+'% <span style="color:var(--muted);font-size:11.5px">(защита '+grp(100-rk,0)+'%)</span></td>'+
-      '<td class="r mono">'+grp(m.part*100,1)+'%</td>'+
-      cell(clientRet(m,0.1))+cell(clientRet(m,0.3))+cell(clientRet(m,0.5));
-    b.appendChild(tr);
-  });
-  function cell(x){return '<td class="r mono '+(x>0?"up":x<0?"dn":"flat")+'">'+pct(x)+'</td>';}
+    st("Минимум к возврату",'<span style="color:var(--red)">'+grp(m.floor,0)+'</span>',
+       "вернётся при любом падении биткойна — даже при −50%","")+
+    st("Ваша доля в росте биткойна",'<span class="green">'+grp(m.eff*100,1)+'%</span>',
+       "каждый 1% роста биткойна сверх точки выхода в плюс добавляет "+grp(m.eff,2).replace(".",",")+"% к вкладу","accent")+
+    st("Выход в плюс при росте",'<span class="green">'+pct(m.BE,1)+'</span>',"","");
+  function st(k,v,sub,cls){return '<div class="stat '+cls+'"><div class="stat-k">'+k+'</div><div class="stat-v">'+v+'</div>'+(sub?'<div class="stat-sub">'+sub+'</div>':'')+'</div>';}
 }
 function renderChart(m){
-  var W=920,H=330,padL=56,padR=16,padT=14,padB=34,
-      x0=-0.5,x1=1.0,
-      yMin=Math.min(-m.risk,-0.06), yMax=Math.max(clientRet(m,x1),x1,0.1);
-  yMin=Math.min(yMin,-0.5); /* показываем и глубину падения BTC */
+  var x0=-0.4,x1=0.6,W=940,H=350,padL=54,padR=14,padT=18,padB=34;
+  var yMin=Math.min(-m.X,-0.42), yMax=Math.max(m.net(x1),x1,0.12);
   function X(v){return padL+(v-x0)/(x1-x0)*(W-padL-padR);}
   function Y(v){return padT+(yMax-v)/(yMax-yMin)*(H-padT-padB);}
-  var pts=[],btc=[];
-  for(var R=x0;R<=x1+1e-9;R+=0.025){
-    pts.push(X(R).toFixed(1)+","+Y(clientRet(m,R)).toFixed(1));
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Кривая доходности вклада">';
+  [yMax,yMax/2,0,-0.2,-0.4].forEach(function(v){if(v<yMin-1e-9||v>yMax+1e-9)return;
+    svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-padR)+'" y2="'+Y(v)+'" stroke="'+(v===0?"#C6CDD6":"#EDF0F4")+'" stroke-width="'+(v===0?1.4:1)+'"/>'+
+      '<text x="'+(padL-7)+'" y="'+(Y(v)+4)+'" font-size="11" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';});
+  [-0.4,-0.2,0,0.2,0.4,0.6].forEach(function(v){
+    svg+='<text x="'+X(v)+'" y="'+(H-10)+'" font-size="11" fill="#697586" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';});
+  /* линия «просто биткойн» */
+  var btc=[],mine=[];
+  for(var R=x0;R<=x1+1e-9;R+=0.01){
     btc.push(X(R).toFixed(1)+","+Y(R).toFixed(1));
+    mine.push(X(R).toFixed(1)+","+Y(m.net(R)).toFixed(1));
   }
-  var gridY=[-0.5,-0.25,0,0.25,0.5,0.75,1.0].filter(function(v){return v>=yMin-1e-9&&v<=yMax+1e-9;});
-  var gridX=[-0.5,-0.25,0,0.25,0.5,0.75,1.0];
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Выплата клиенту в зависимости от BTC">';
-  gridY.forEach(function(v){svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-padR)+'" y2="'+Y(v)+'" stroke="#EDF0F4" stroke-width="1"/>'+
-    '<text x="'+(padL-8)+'" y="'+(Y(v)+4)+'" font-size="11" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';});
-  gridX.forEach(function(v){svg+='<text x="'+X(v)+'" y="'+(H-10)+'" font-size="11" fill="#697586" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';});
-  svg+='<line x1="'+padL+'" y1="'+Y(0)+'" x2="'+(W-padR)+'" y2="'+Y(0)+'" stroke="#C6CDD6" stroke-width="1.4"/>';
-  svg+='<line x1="'+X(0)+'" y1="'+padT+'" x2="'+X(0)+'" y2="'+(H-padB)+'" stroke="#E2E6EC" stroke-width="1"/>';
   svg+='<polyline points="'+btc.join(" ")+'" fill="none" stroke="#B9C2CC" stroke-width="2" stroke-dasharray="5 4"/>';
-  svg+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="#0E9F6E" stroke-width="3.2" stroke-linejoin="round"/>';
-  svg+='<circle cx="'+X(0)+'" cy="'+Y(-m.risk)+'" r="4.5" fill="#E5484D"/>';
+  /* зона защиты */
+  svg+='<line x1="'+padL+'" y1="'+Y(-m.X)+'" x2="'+X(0)+'" y2="'+Y(-m.X)+'" stroke="#0E9F6E" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>';
+  svg+='<text x="'+(padL+6)+'" y="'+(Y(-m.X)-7)+'" font-size="11" font-weight="700" fill="#0B7E58">минимум '+grp(m.floor,0)+' USDT</text>';
+  svg+='<polyline points="'+mine.join(" ")+'" fill="none" stroke="#0E9F6E" stroke-width="3.4" stroke-linejoin="round"/>';
+  /* точка выхода в плюс */
+  var bx=X(m.BE);
+  svg+='<line x1="'+bx+'" y1="'+padT+'" x2="'+bx+'" y2="'+(H-padB)+'" stroke="#0B7E58" stroke-width="1.4" stroke-dasharray="4 4"/>';
+  svg+='<circle cx="'+bx+'" cy="'+Y(0)+'" r="4.5" fill="#0B7E58"/>';
+  svg+='<text x="'+(bx+7)+'" y="'+(padT+13)+'" font-size="11.5" font-weight="700" fill="#0B7E58">выход в плюс '+pct(m.BE,1)+'</text>';
   svg+='</svg>';
   document.getElementById("chart").innerHTML=svg;
-  var beR=m.part>0?m.risk/m.part:null;
-  document.getElementById("be").textContent=beR!=null?("безубыток клиента: BTC ≥ +"+grp(beR*100,1)+"%"):"";
+  document.getElementById("beLeg").textContent="выход в плюс: биткойн ≥ "+pct(m.BE,1);
+  document.getElementById("chartNote").innerHTML=
+    "Слева видно главное: как бы глубоко ни упал биткойн, вы получаете не меньше <b>"+grp(m.floor,0)+" USDT</b> — в отличие от серой линии, где падение забирает всё. Справа — цена этой защиты: вы получаете "+grp(m.eff*100,1)+"% роста, а не весь рост.";
 }
 function renderScen(m){
-  document.getElementById("scenDep").textContent=grp(S.principal,0);
-  var tb=document.getElementById("scenBody"); tb.innerHTML="";
-  SCN.forEach(function(R){
-    var ret=clientRet(m,R), pay=S.principal*(1+ret), tr=document.createElement("tr");
-    if(R===0)tr.className="zero";
-    tr.innerHTML='<td class="mono '+(R>0?"up":R<0?"dn":"")+'">'+(R>0?"+":"")+grp(R*100,0)+'%</td>'+
-      '<td class="r mono">'+grp(S.spot*(1+R),0)+'</td>'+
-      '<td class="r mono">'+grp(pay,0)+'</td>'+
-      '<td class="r mono '+(ret>0?"up":ret<0?"dn":"flat")+'">'+pct(ret)+'</td>'+
-      '<td class="r mono up">'+grp(m.margin*S.principal,0)+'</td>';
-    tb.appendChild(tr);
-  });
+  document.getElementById("tabH").innerHTML="Сценарии · вклад "+grp(S.P,0)+" USDT на "+m.d+" дней · риск "+S.X+"%";
+  var list=[-0.4,-0.2,-0.05,0,{be:1},0.1,0.25,0.5];
+  document.getElementById("scenBody").innerHTML=list.map(function(it){
+    var be=(typeof it==="object"), R=be?m.BE:it, n=m.net(R), pay=S.P*(1+n);
+    var why=be?"вы вернули вложенное полностью — дальше только прибыль"
+      :(R<0?"биткойн упал — работает защита вклада"
+      :(R===0?"биткойн на месте — работает защита вклада"
+      :"биткойн вырос: ваша доля "+grp(m.eff*100,1)+"% от роста"));
+    return "<tr class='"+(be?"be":(R===0?"zero":""))+"'><td class='mono "+(R>0?"up":(R<0?"dn":"flat"))+"'>"+(be?("выход в плюс · "+pct(m.BE,1)):pct(R,0))+"</td>"+
+      "<td class='r mono'>"+grp(pay,0)+"</td>"+
+      "<td class='r mono "+(n>0?"up":(n<0?"dn":"flat"))+"'>"+pct(n,2)+"</td>"+
+      "<td style='color:#697586;font-size:13px'>"+why+"</td></tr>";}).join("");
 }
-function renderAssumptions(){
-  var g=document.getElementById("asGrid"); g.innerHTML="";
+function renderSummary(m){
+  document.getElementById("summary").innerHTML=
+    "<b>Коротко:</b> вы вкладываете "+grp(S.P,0)+" USDT на "+m.d+" дней. В худшем случае получите <b>"+grp(m.floor,0)+" USDT</b> — это ваш риск "+S.X+"%, и он не увеличится, как бы ни упал биткойн. Если биткойн вырастет больше чем на "+pct(m.BE,1)+", вы в плюсе и забираете "+grp(m.eff*100,1)+"% его роста: например, при росте на 30% вернётся <b>"+grp(S.P*(1+m.net(0.3)),0)+" USDT</b>.";
+}
+function renderParams(){
+  var g=document.getElementById("asGrid");g.innerHTML="";
   var defs=[
-    {k:"spot",label:"Спот BTC (20.07.2026)",u:"USDT",get:function(){return grp(S.spot,0);},set:function(v){S.spot=v;}},
-    {k:"yieldPct",label:"Доходность USDT (надёжная)",u:"% год.",get:function(){return S.yieldPct;},set:function(v){S.yieldPct=v;}},
-    {k:"slipPct",label:"Буфер исполнения за период",u:"%",get:function(){return S.slipPct;},set:function(v){S.slipPct=v;}},
-    {k:"entryPct",label:"Комиссия на входе (разово)",u:"%",get:function(){return S.entryPct;},set:function(v){S.entryPct=v;}}
-  ];
-  TERMS.forEach(function(t){
-    defs.push({k:"d_"+t.id,label:"Дней до эксп. · "+t.series,u:"дн",slot:t.id,fld:"days"});
-    defs.push({k:"q_"+t.id,label:"Колл "+t.series+" · марка",u:"% спота",slot:t.id,fld:"q"});
-  });
+    {l:"Биткойн сейчас",u:"USDT",get:function(){return grp(S.spot,0);},set:function(v){S.spot=v;}},
+    {l:"Доходность USDT",u:"% год.",get:function(){return S.yieldPct;},set:function(v){S.yieldPct=v;}},
+    {l:"Издержки биржи",u:"%",get:function(){return S.slipPct;},set:function(v){S.slipPct=v;}}];
+  TERMS.forEach(function(t){defs.push({l:"Дней · "+t.label,u:"дн",slot:t.id,fld:"days"});});
+  TERMS.forEach(function(t){defs.push({l:"Опцион · "+t.label,u:"% цены BTC",slot:t.id,fld:"q"});});
   defs.forEach(function(f){
-    var d=document.createElement("div");
-    d.className="as"+(f.slot?" q":"");
-    var val=f.slot?S[f.fld][f.slot]:f.get();
-    d.innerHTML='<label>'+(f.slot?'<b>'+f.label+'</b>':f.label)+' <span class="u">'+f.u+'</span></label>'+
-      '<input id="as_'+f.k+'" value="'+val+'" inputmode="decimal" />';
-    g.appendChild(d);
-    d.querySelector("input").addEventListener("input",function(e){
+    var el=document.createElement("div");el.className="as";
+    el.innerHTML='<label>'+f.l+' <span class="u">'+f.u+'</span></label><input value="'+(f.slot?S[f.fld][f.slot]:f.get())+'" inputmode="decimal"/>';
+    g.appendChild(el);
+    el.querySelector("input").addEventListener("input",function(e){
       var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
-      if(isNaN(v)||v<=0)return;
-      if(f.slot)S[f.fld][f.slot]=v; else f.set(v);
-      refreshCalc();
-    });
+      if(isNaN(v)||v<=0)return; if(f.slot)S[f.fld][f.slot]=v; else f.set(v); refresh();});
   });
-}
-function renderReality(m){
-  var t=TERMS.find(function(x){return x.id===S.term;});
-  document.getElementById("reality").innerHTML=
-    "<b>Как это читается клиенту:</b> при взносе "+grp(S.principal,0)+" USDT худший исход — вернуть "+
-    grp(m.prot*S.principal,0)+" USDT (−"+S.risk+"%), какой бы ни была просадка BTC. При росте BTC клиент получает "+
-    grp(m.part*100,1)+"% этого роста сверх защиты ("+t.series+", "+grp(m.d,0)+" дн). Маржа проекта "+grp(m.margin*S.principal,0)+
-    " USDT фиксируется в момент запуска и не зависит от рынка. Котировки — Deribit, 20.07.2026 (марки модельные, перед сделкой впишите mark price из терминала); прошлые и модельные цифры не гарантируют будущих.";
-}
-
-/* ---------- live infographic ---------- */
-function infoDepVal(){return S.infoDep==="self"?S.principal:S.infoDep;}
-function renderInfoDeps(){
-  var box=document.getElementById("infoDeps"); box.innerHTML="";
-  INFO_DEPS.forEach(function(a){
-    var b=document.createElement("button");
-    b.className="amt"+(S.infoDep===a?" on":"");
-    b.textContent=(a==="self"?"Ваш взнос ("+grp(S.principal,0)+")":grp(a,0)+" USDT");
-    b.addEventListener("click",function(){S.infoDep=a;renderInfoDeps();renderInfographic();});
-    box.appendChild(b);
-  });
-}
-var AMBER="#C9860B";
-function renderInfoModes(){
-  var box=document.getElementById("infoModes"); box.innerHTML="";
-  [["pkgs","Три пакета"],["vs","Пакет vs BTC"]].forEach(function(md){
-    var b=document.createElement("button");
-    b.className="amt"+(S.infoMode===md[0]?" on":"");
-    b.textContent=md[1];
-    b.addEventListener("click",function(){S.infoMode=md[0];renderInfoModes();renderInfographic();});
-    box.appendChild(b);
-  });
-}
-function renderInfographic(){
-  if(S.infoMode==="vs"){renderInfoVs();return;}
-  var dep=infoDepVal();
-  var groups=TERMS.map(function(t){
-    var m=calc(t.id,S.risk,S.share), med=medBTC(S.days[t.id]);
-    return {t:t,m:m,med:med,
-      bars:ISCN.map(function(R){return {R:R,ret:clientRet(m,R),med:false};})
-        .concat([{R:med,ret:clientRet(m,med),med:true}])};
-  });
-  var all=[];
-  groups.forEach(function(g){g.bars.forEach(function(b){all.push(b.ret);});});
-  var yMax=Math.max.apply(null,all.concat([0.05])), yMin=Math.min.apply(null,all.concat([-0.04]));
-  var W=940,H=352,padT=26,plotB=196,padL=44;
-  function Y(v){return padT+(yMax-v)/(yMax-yMin)*(plotB-padT);}
-  var y0=Y(0);
-  var gw=286,ggap=16,startX=padL+6,bw=38,bgap=9;
-  var COLS={neg:"#E5484D",zero:"#9AA6B2",pos:["#8FD4B4","#4CBE8D","#0E9F6E"]};
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Ожидания по пакетам: сценарии">';
-  [yMax, yMax/2, 0, yMin].forEach(function(v){
-    svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-8)+'" y2="'+Y(v)+'" stroke="'+(v===0?"#C6CDD6":"#EDF0F4")+'" stroke-width="'+(v===0?1.4:1)+'"/>'+
-      '<text x="'+(padL-6)+'" y="'+(Y(v)+4)+'" font-size="10.5" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';
-  });
-  groups.forEach(function(g,gi){
-    var gx=startX+gi*(gw+ggap), posI=0;
-    g.bars.forEach(function(bb,i){
-      var x=gx+i*(bw+bgap), ret=bb.ret;
-      var col=bb.med?AMBER:(bb.R<0?COLS.neg:(bb.R===0?COLS.zero:COLS.pos[posI++]));
-      var yv=Y(ret), h=Math.abs(yv-y0), yr=ret>=0?yv:y0;
-      if(h<1.6){h=1.6;yr=ret>=0?y0-1.6:y0;}
-      svg+='<rect x="'+x+'" y="'+yr.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" rx="4" fill="'+col+'"/>';
-      var ly=ret>=0?Math.max(yv-5,12):Math.min(yv+13,plotB-2);
-      svg+='<text x="'+(x+bw/2)+'" y="'+ly.toFixed(1)+'" font-size="10" font-weight="700" fill="'+(bb.med?AMBER:(ret<0?COLS.neg:"#0B7E58"))+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(ret)+'</text>';
-      svg+='<text x="'+(x+bw/2)+'" y="'+(plotB+14)+'" font-size="9.5" fill="'+(bb.med?AMBER:"#697586")+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+(bb.med?"мед.":((bb.R>0?"+":"")+Math.round(bb.R*100)+"%"))+'</text>';
-    });
-    var cx=gx+(g.bars.length*bw+(g.bars.length-1)*bgap)/2, mons=(S.days[g.t.id]/30.44);
-    var pays=[0.1,0.3,0.5].map(function(R){return grp(dep*(1+clientRet(g.m,R)),0);});
-    svg+='<text x="'+cx+'" y="'+(plotB+34)+'" font-size="12" font-weight="800" fill="#161B22" text-anchor="middle">'+g.t.series+' · '+grp(S.days[g.t.id],0)+' дн (≈'+grp(mons,1)+' мес)</text>';
-    svg+='<text x="'+cx+'" y="'+(plotB+52)+'" font-size="11" fill="#697586" text-anchor="middle">участие '+grp(g.m.part*100,1)+'% · безубыток BTC ≥ +'+grp(g.m.part>0?g.m.risk/g.m.part*100:0,1)+'% · медиана BTC '+pct(g.med)+'</text>';
-    svg+='<text x="'+cx+'" y="'+(plotB+70)+'" font-size="11" fill="#0B7E58" font-weight="700" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+grp(dep,0)+' → '+pays[0]+' · '+pays[1]+' · '+pays[2]+'</text>';
-    svg+='<text x="'+cx+'" y="'+(plotB+86)+'" font-size="9.5" fill="#9AA6B2" text-anchor="middle">выплата USDT при BTC +10 / +30 / +50%</text>';
-  });
-  svg+='</svg>';
-  document.getElementById("ichart").innerHTML=svg;
-  document.getElementById("infoNote").innerHTML=
-    "Взнос "+grp(dep,0)+" USDT · риск −"+S.risk+"% · доля клиента "+S.share+"%. Столбики — доходность клиента за срок пакета при данном движении BTC; при любом падении действует «пол» −"+S.risk+"%. <span style=\"color:"+AMBER+";font-weight:700\">Янтарный столбик «мед.»</span> — выплата пакета при медианном росте BTC за такой срок по реальным данным 2021–17.06.2026 (скользящие окна, включая обвал 2022). Иллюстрация выплатной формулы на текущих котировках, не прогноз и не обещание доходности.";
-  renderBadge();
-}
-function renderInfoVs(){
-  var dep=infoDepVal();
-  var t=TERMS.find(function(x){return x.id===S.term;});
-  var m=calc(S.term,S.risk,S.share), med=medBTC(S.days[S.term]);
-  var scns=ISCN.map(function(R){return {R:R,med:false};}).concat([{R:med,med:true}]);
-  var all=[];
-  scns.forEach(function(s){all.push(clientRet(m,s.R));all.push(s.R);});
-  var yMax=Math.max.apply(null,all.concat([0.05])), yMin=Math.min.apply(null,all.concat([-0.22]));
-  var W=940,H=336,padT=40,plotB=236,padL=44;
-  function Y(v){return padT+(yMax-v)/(yMax-yMin)*(plotB-padT);}
-  var y0=Y(0);
-  var bw=52,bgap=8,gw=2*bw+bgap,ggap=26,startX=padL+18;
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Пакет против покупки BTC">';
-  svg+='<text x="'+padL+'" y="16" font-size="12.5" font-weight="800" fill="#161B22">Пакет '+t.series+' · '+grp(S.days[S.term],0)+' дн · риск −'+S.risk+'% · участие '+grp(m.part*100,1)+'%   —   против покупки BTC на ту же сумму</text>';
-  [yMax, yMax/2, 0, yMin/2, yMin].forEach(function(v){
-    svg+='<line x1="'+padL+'" y1="'+Y(v)+'" x2="'+(W-8)+'" y2="'+Y(v)+'" stroke="'+(Math.abs(v)<1e-9?"#C6CDD6":"#EDF0F4")+'" stroke-width="'+(Math.abs(v)<1e-9?1.4:1)+'"/>'+
-      '<text x="'+(padL-6)+'" y="'+(Y(v)+4)+'" font-size="10.5" fill="#697586" text-anchor="end" font-family="ui-monospace,Menlo,monospace">'+(v>0?"+":"")+Math.round(v*100)+'%</text>';
-  });
-  scns.forEach(function(s,i){
-    var gx=startX+i*(gw+ggap);
-    var pr=clientRet(m,s.R), br=s.R;
-    var yv=Y(pr),h=Math.abs(yv-y0),yr=pr>=0?yv:y0; if(h<1.6){h=1.6;yr=pr>=0?y0-1.6:y0;}
-    svg+='<rect x="'+gx+'" y="'+yr.toFixed(1)+'" width="'+bw+'" height="'+h.toFixed(1)+'" rx="4" fill="'+(pr<0?"#E5484D":"#0E9F6E")+'"/>';
-    svg+='<text x="'+(gx+bw/2)+'" y="'+((pr>=0?Math.max(yv-5,28):Math.min(yv+13,plotB-2))).toFixed(1)+'" font-size="10" font-weight="700" fill="'+(pr<0?"#E5484D":"#0B7E58")+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(pr)+'</text>';
-    var x2=gx+bw+bgap;
-    var yv2=Y(br),h2=Math.abs(yv2-y0),yr2=br>=0?yv2:y0; if(h2<1.6){h2=1.6;yr2=br>=0?y0-1.6:y0;}
-    svg+='<rect x="'+x2+'" y="'+yr2.toFixed(1)+'" width="'+bw+'" height="'+h2.toFixed(1)+'" rx="4" fill="#B9C2CC"/>';
-    svg+='<text x="'+(x2+bw/2)+'" y="'+((br>=0?Math.max(yv2-5,28):Math.min(yv2+13,plotB-2))).toFixed(1)+'" font-size="10" font-weight="700" fill="#697586" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+pct(br)+'</text>';
-    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+16)+'" font-size="10.5" font-weight="'+(s.med?800:600)+'" fill="'+(s.med?AMBER:"#161B22")+'" text-anchor="middle">'+(s.med?"медиана 21–26":("BTC "+(s.R>0?"+":"")+Math.round(s.R*100)+"%"))+'</text>';
-    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+32)+'" font-size="9.5" fill="#0B7E58" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">'+grp(dep*(1+pr),0)+'</text>';
-    svg+='<text x="'+(gx+gw/2)+'" y="'+(plotB+46)+'" font-size="9.5" fill="#9AA6B2" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">vs '+grp(dep*(1+br),0)+'</text>';
-  });
-  svg+='</svg>';
-  document.getElementById("ichart").innerHTML=svg;
-  document.getElementById("infoNote").innerHTML=
-    "Взнос "+grp(dep,0)+" USDT. <span style=\"color:#0B7E58;font-weight:700\">Зелёный/красный</span> — пакет (выбран в шаге 2), <span style=\"color:#697586;font-weight:700\">серый</span> — просто купить BTC на ту же сумму; под каждой парой — выплата пакета и, ниже, «vs» результат покупки BTC. Слева виден смысл продукта: при обвале BTC −20% пакет держит «пол» −"+S.risk+"%; справа — цена защиты: в росте клиент получает "+grp(m.part*100,1)+"% движения. «Медиана 21–26» — реальный медианный рост BTC за такой срок в 2021–17.06.2026. Не прогноз и не обещание доходности.";
-  renderBadge();
 }
 function renderBadge(){
-  var b=document.getElementById("liveBadge");
-  b.classList.toggle("on",LIVE.on);
-  document.getElementById("liveTxt").textContent=LIVE.txt;
+  var b=document.getElementById("dataBadge");
+  b.className=LIVE.on?"live":"";
+  b.textContent=LIVE.txt;
 }
-/* --- рыночные данные: live API -> market.json (вариант B) -> офлайн-марки --- */
-function applyMarket(spot,res,txt,tag){
-  S.spot=Math.round(spot); var ivs=[];
+function dmy(ts){var d=new Date(ts);function p(n){return (n<10?"0":"")+n;}
+  return p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear();}
+function applyMarket(spot,res,txt){
+  S.spot=Math.round(spot);
   res.forEach(function(r){
     if(!(r.mark>0))throw new Error("mark");
     S.days[r.slot]=Math.max(1,Math.round((r.ts-Date.now())/86400000));
+    S.dates[r.slot]=dmy(r.ts);
     S.q[r.slot]=Math.round(r.mark*100)/100;
-    TERMS.find(function(x){return x.id===r.slot;}).series=String(r.name).split("-").slice(0,2).join("-");
-    if(r.iv)ivs.push(r.iv);
   });
   LIVE.on=true; LIVE.txt=txt;
-  var cs=document.getElementById("chipSpot");
-  if(cs)cs.innerHTML="BTC $"+grp(S.spot,0)+" <i>спот · "+tag+"</i>";
-  var cv=document.getElementById("chipVol");
-  if(cv&&ivs.length)cv.innerHTML="IV ≈ "+grp(ivs.reduce(function(a,b){return a+b;},0)/ivs.length,0)+"% <i>марки ATM · "+tag+"</i>";
-  renderAssumptions(); refresh();
+  renderParams(); refresh();
 }
+/* котировки: биржа Deribit -> ежедневный снапшот market.json -> значения по умолчанию */
 function fetchLive(){
   var API="https://www.deribit.com/api/v2/public/";
   function j(u){return fetch(API+u).then(function(r){if(!r.ok)throw new Error("http");return r.json();})
@@ -646,72 +326,52 @@ function fetchLive(){
       var now=Date.now(), exps={};
       list.forEach(function(o){
         if(o.option_type!=="call")return;
-        var dd=(o.expiration_timestamp-now)/86400000;
-        if(dd<8)return; /* слишком короткие серии пропускаем */
+        if((o.expiration_timestamp-now)/86400000<8)return;
         (exps[o.expiration_timestamp]=exps[o.expiration_timestamp]||[]).push(o);
       });
       var keys=Object.keys(exps).map(Number);
       if(!keys.length)throw new Error("noexp");
-      var targets={m:30,q:90,h:180}, used={}, chosen={};
-      ["m","q","h"].forEach(function(slot){
+      var targets={s30:30,s60:60,s90:90,s180:180}, used={}, chosen={};
+      ["s30","s60","s90","s180"].forEach(function(slot){
         var best=null,bd=1e18;
         keys.forEach(function(ts){
           if(used[ts])return;
-          var dd=(ts-now)/86400000, diff=Math.abs(dd-targets[slot]);
+          var diff=Math.abs((ts-now)/86400000-targets[slot]);
           if(diff<bd){bd=diff;best=ts;}
         });
         if(best!=null){used[best]=1;chosen[slot]=best;}
       });
-      var proms=["m","q","h"].map(function(slot){
+      var proms=Object.keys(chosen).map(function(slot){
         var ts=chosen[slot], arr=exps[ts];
         var atm=arr.reduce(function(a,b){return Math.abs(b.strike-spot)<Math.abs(a.strike-spot)?b:a;});
         return j("ticker?instrument_name="+encodeURIComponent(atm.instrument_name)).then(function(tk){
-          return {slot:slot,ts:ts,name:atm.instrument_name,mark:(tk.mark_price||0)*100,iv:tk.mark_iv};
-        });
+          return {slot:slot,ts:ts,mark:(tk.mark_price||0)*100};});
       });
       return Promise.all(proms).then(function(res){
-        var d=new Date();function pad(n){return (n<10?"0":"")+n;}
-        applyMarket(spot,res,"live · Deribit · "+pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()+" "+pad(d.getHours())+":"+pad(d.getMinutes()),"live");
+        applyMarket(spot,res,"котировки обновлены "+dmy(Date.now()));
       });
     });
   }).catch(function(){ fetchSnapshot(); });
 }
-/* вариант B: ежедневный снапшот market.json, который кладёт GitHub Action */
 function fetchSnapshot(){
   fetch("market.json?ts="+Date.now()).then(function(r){if(!r.ok)throw new Error("nf");return r.json();})
   .then(function(mj){
-    var res=["m","q","h"].map(function(slot){
-      var s=mj.slots[slot];
-      return {slot:slot,ts:s.expiry_ts,name:s.series,mark:s.mark_pct,iv:s.iv||0};
-    });
-    var d=new Date(mj.updated);function pad(n){return (n<10?"0":"")+n;}
-    applyMarket(mj.spot,res,"снапшот "+pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear()+" · market.json","снапшот");
+    var res=Object.keys(mj.slots).map(function(slot){
+      return {slot:slot, ts:mj.slots[slot].expiry_ts, mark:mj.slots[slot].mark_pct};});
+    applyMarket(mj.spot,res,"котировки на "+dmy(mj.updated));
   })
-  .catch(function(){ LIVE.on=false; LIVE.txt="офлайн-марки · 20.07.2026"; renderBadge(); });
+  .catch(function(){ LIVE.on=false; renderBadge(); });
 }
-
-/* ---------- wiring ---------- */
-function refreshCalc(){
-  var m=calc(S.term,S.risk,S.share);
-  renderMatrix(); renderStats(m); renderRiskTable(); renderChart(m); renderScen(m); renderReality(m);
-  renderInfographic();
+function refresh(){
+  var m=calc();
+  renderAmts();renderTerms();renderRisk(m);renderStats(m);renderChart(m);renderScen(m);renderSummary(m);renderBadge();
 }
-function refresh(){renderSplit(); renderAmts(); renderInfoModes(); renderInfoDeps(); refreshCalc();}
-
 document.getElementById("principal").addEventListener("input",function(e){
   var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
-  if(!isNaN(v)&&v>0){S.principal=v; renderAmts(); refreshCalc();}
-});
-document.getElementById("principal").addEventListener("blur",function(e){
-  e.target.value=grp(S.principal,0);
-});
-document.getElementById("share").addEventListener("input",function(e){
-  S.share=parseInt(e.target.value,10); refresh();
-});
-
-renderAssumptions();
-refresh();
-fetchLive();
+  if(!isNaN(v)&&v>0){S.P=v;refresh();}});
+document.getElementById("principal").addEventListener("blur",function(e){e.target.value=grp(S.P,0);});
+document.getElementById("risk").addEventListener("input",function(e){S.X=parseInt(e.target.value,10);refresh();});
+renderParams();refresh();fetchLive();
 </script>
 </body>
 </html>
