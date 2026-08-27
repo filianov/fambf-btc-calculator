@@ -1,0 +1,38 @@
+{
+ "updated": "2026-08-26T12:00:00.000Z",
+ "spot": 79000,
+ "slots": {
+  "s30": {
+   "series": "BTC-25SEP26",
+   "expiry_ts": 1790323200000,
+   "days": 30,
+   "mark_pct": 5.34,
+   "iv": 45,
+   "strike": 79000
+  },
+  "s60": {
+   "series": "BTC-30OCT26",
+   "expiry_ts": 1793347200000,
+   "days": 65,
+   "mark_pct": 7.81,
+   "iv": 44,
+   "strike": 79000
+  },
+  "s90": {
+   "series": "BTC-27NOV26",
+   "expiry_ts": 1795766400000,
+   "days": 93,
+   "mark_pct": 9.22,
+   "iv": 43,
+   "strike": 79000
+  },
+  "s180": {
+   "series": "BTC-26MAR27",
+   "expiry_ts": 1806048000000,
+   "days": 212,
+   "mark_pct": 14.28,
+   "iv": 43,
+   "strike": 79000
+  }
+ }
+}
