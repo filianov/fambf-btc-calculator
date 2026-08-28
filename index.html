@@ -46,6 +46,19 @@
   .risk-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)}
   .zone{font-size:12.5px;margin-top:8px;color:var(--muted)}
   .zone.warn{color:#7A5410;background:var(--amber2);border:1px solid #EAD9B4;border-radius:9px;padding:8px 11px}
+  .g-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);font-weight:600}
+  .g-top b{font-size:22px;color:var(--accent-d)}
+  .g-price{font-size:12.5px;color:var(--muted);font-weight:500}
+  .g-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .g-out{display:grid;grid-template-columns:1fr 1fr 1.7fr;gap:10px;margin-top:14px}
+  @media (max-width:760px){.g-out{grid-template-columns:1fr 1fr}.g-note{grid-column:1/-1}}
+  .g-cell{background:#FCFDFE;border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+  .g-k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .g-v{font-family:var(--mono);font-size:26px;font-weight:800;margin-top:3px;letter-spacing:-.01em}
+  .g-v.pos{color:var(--accent-d)}.g-v.neg{color:var(--red)}.g-v.zero{color:var(--muted)}
+  .g-u{font-size:11px;color:var(--muted);margin-top:1px}
+  .g-note{display:flex;align-items:center;font-size:13px;line-height:1.45;color:#3C4652;background:var(--accent2);border-color:#CDEBDD}
+  .g-note.pr{background:#FCFDFE;border-color:var(--line)}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
   @media (max-width:760px){.stats{grid-template-columns:1fr}}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
@@ -115,9 +128,21 @@
     <span class="risk-val" id="riskVal">3%</span>
     <span class="hint" style="margin:0">чем больше риск вы допускаете, тем больше ваша доля в росте биткойна</span>
   </div>
-  <input type="range" id="risk" min="1" max="10" step="1" value="3"/>
+  <input type="range" id="risk" min="1" max="10" step="0.5" value="3"/>
   <div class="risk-scale"><span>1%</span><span>5%</span><span>10%</span></div>
   <div class="zone" id="zone"></div>
+</section>
+
+<section class="card">
+  <div class="card-h">Что будет с вашим вкладом · потяните ползунок роста биткойна</div>
+  <div class="g-top">Биткойн за срок: <b id="gBtc" class="mono">+10%</b><span class="g-price" id="gPrice"></span></div>
+  <input type="range" id="growth" min="-50" max="100" step="1" value="10"/>
+  <div class="g-scale"><span>−50%</span><span>0</span><span>+50%</span><span>+100%</span></div>
+  <div class="g-out">
+    <div class="g-cell"><div class="g-k">Ваш результат</div><div class="g-v" id="gPct">0%</div></div>
+    <div class="g-cell"><div class="g-k">Вы получаете</div><div class="g-v" id="gSum">0</div><div class="g-u">USDT</div></div>
+    <div class="g-cell g-note" id="gNote"></div>
+  </div>
 </section>
 
 <section class="stats" id="stats"></section>
@@ -128,26 +153,20 @@
   <div class="legend">
     <span><i class="sw" style="background:var(--accent)"></i> ваш вклад</span>
     <span><i class="sw" style="background:#B9C2CC"></i> если просто купить биткойн</span>
-    <span id="beLeg" style="margin-left:auto;font-weight:700;color:var(--ink)"></span>
   </div>
   <div class="hint" id="chartNote"></div>
 </section>
 
 <section class="card">
-  <div class="card-h" id="tabH">Сценарии</div>
-  <div class="tablewrap"><table class="t">
-    <thead><tr><th>Биткойн за срок</th><th class="r">Вы получаете</th><th class="r">Ваш результат</th><th>Что это значит</th></tr></thead>
-    <tbody id="scenBody"></tbody>
-  </table></div>
+  <div class="card-h">Риск проекта · коридор от 0% до выхода клиента в плюс</div>
+  <div class="g-out">
+    <div class="g-cell"><div class="g-k">Максимальный риск</div><div class="g-v neg" id="prMax">0</div><div class="g-u" id="prMaxU">USDT</div></div>
+    <div class="g-cell"><div class="g-k">При текущем ползунке роста</div><div class="g-v" id="prNow">0</div><div class="g-u" id="prNowU">USDT</div></div>
+    <div class="g-cell g-note pr" id="prNote"></div>
+  </div>
+  <div class="hint" id="prCalc"></div>
 </section>
 
-<div class="summary" id="summary"></div>
-
-<details class="params">
-  <summary>Параметры расчёта · рыночные данные на 26.08.2026</summary>
-  <div class="as-grid" id="asGrid"></div>
-  <div class="hint">Цены опционов страница берёт с биржи Deribit автоматически при каждом открытии; если биржа недоступна — из ежедневного снапшота, иначе из значений ниже. Сроки 30/60/90/180 дней исполняются ближайшими торгуемыми сериями, поэтому фактическое число дней и дата окончания могут немного отличаться.</div>
-</details>
 </div>
 
 <footer><div class="foot-in">
@@ -164,7 +183,7 @@
 
 <script>
 /* ==== настройка (правится вручную) ==== */
-var SHARE=0.20;   /* доля проекта в прибыли клиента; результаты на странице показаны уже за её вычетом */
+var SHARE=0.05;   /* доля проекта в прибыли клиента (клиенту 95%); все цифры на странице — уже за её вычетом */
 
 function grp(n,dec){var neg=n<0;n=Math.abs(n);var p=n.toFixed(dec==null?0:dec).split(".");
   return (neg?"−":"")+p[0].replace(/\B(?=(\d{3})+(?!\d))/g," ")+(p[1]?","+p[1]:"");}
@@ -181,6 +200,7 @@ var S={P:100000, term:"s30", X:3, spot:79000, yieldPct:10.8, slipPct:0.3,
        dates:{s30:"25.09.2026", s60:"30.10.2026", s90:"27.11.2026", s180:"26.03.2027"},
        q:{s30:5.34, s60:7.81, s90:9.22, s180:14.28}};
 var LIVE={on:false, txt:"котировки на 26.08.2026"};
+S.R=10;   /* положение ползунка роста биткойна, % */
 
 function calc(){
   var d=S.days[S.term]||1, T=d/365, y=S.yieldPct/100, DF=Math.pow(1+y,-T), X=S.X/100,
@@ -190,7 +210,7 @@ function calc(){
       eff=N*(1-SHARE),
       Xcap=1-(1-q-S.slipPct/100)/DF;
   function net(R){var g=-X+N*Math.max(0,R); return g-SHARE*Math.max(0,g);}
-  return {d:d,X:X,N:N,BE:BE,eff:eff,Xcap:Xcap,floor:(1-X)*S.P,net:net};
+  return {d:d,DF:DF,X:X,N:N,BE:BE,eff:eff,Xcap:Xcap,floor:(1-X)*S.P,net:net};
 }
 
 function renderAmts(){
@@ -210,7 +230,7 @@ function renderTerms(){
     b.appendChild(el);});
 }
 function renderRisk(m){
-  document.getElementById("riskVal").textContent=S.X+"%";
+  document.getElementById("riskVal").textContent=String(S.X).replace(".",",")+"%";
   var z=document.getElementById("zone");
   if(S.X/100<=m.Xcap){
     z.className="";
@@ -220,13 +240,38 @@ function renderRisk(m){
     z.innerHTML="Доля в росте уже максимальная (<b>"+grp(m.eff*100,0)+"%</b>) — дальше увеличивать риск невыгодно: вклад защищён слабее, а доля не растёт. Оптимально для этого срока — около "+grp(m.Xcap*100,0)+"%.";
   }
 }
+function renderPrisk(m){
+  /* Риск проекта существует ТОЛЬКО когда цена BTC на расчёт выше цены входа,
+     но ещё не дошла до безубытка клиента: 0 < R < BE.
+     При R <= 0 (BTC не вырос) просадку покрывает сам клиент — риска проекта нет.
+     Из разрыва вычитается доход надёжной ноги за срок; значение не бывает отрицательным. */
+  var interest=(1-m.X)*(1-m.DF)*S.P,
+      R=S.R/100,
+      inZone=(R>0 && R<m.BE),
+      gapNow=inZone?Math.max(0,S.P*(m.X-m.N*R)):0,
+      riskNow=inZone?Math.max(0,gapNow-interest):0,
+      riskMax=(m.BE>0)?Math.max(0,S.P*m.X-interest):0;   /* предел при росте BTC около 0% */
+  document.getElementById("prMax").textContent=grp(riskMax,0);
+  document.getElementById("prMaxU").textContent="USDT · "+grp(riskMax/S.P*100,2)+"% от вклада · при росте BTC чуть выше 0%";
+  var nowEl=document.getElementById("prNow");
+  nowEl.className="g-v "+(riskNow>0.5?"neg":"zero");
+  nowEl.textContent=grp(riskNow,0);
+  document.getElementById("prNowU").textContent="USDT · при BTC "+((S.R>0?"+":(S.R<0?"−":""))+Math.abs(S.R))+"%";
+  document.getElementById("prNote").innerHTML=
+    (R<=0)
+      ? "Биткойн не вырос относительно цены входа — просадку покрывает сам клиент, это его выбранный риск. Для проекта риска нет."
+      : (riskNow>0.5
+        ? "Биткойн вырос, но клиент ещё не вышел в плюс: разрыв <b>"+grp(gapNow,0)+" USDT</b>, из них <b>"+grp(interest,0)+"</b> уже покрывает доход надёжной ноги."
+        : "Клиент вышел в плюс — риска у проекта нет, дальше проект только зарабатывает.");
+  document.getElementById("prCalc").innerHTML=
+    "Риск считается <b>только в коридоре роста</b>: цена BTC на дату расчёта выше цены входа, но ниже безубытка клиента ("+pct(m.BE,2)+"). Если биткойн не вырос или упал — риск равен нулю, просадку покрывает клиент. Формула: разрыв у клиента (максимум "+grp(m.X*100,1).replace(".",",")+"% = "+grp(S.P*m.X,0)+" USDT при росте, близком к нулю) − доход надёжной ноги за "+m.d+" дн под "+grp(S.yieldPct,1)+"% годовых ("+grp(interest/S.P*100,2)+"% = "+grp(interest,0)+" USDT) = <b>"+grp(riskMax/S.P*100,2)+"% ("+grp(riskMax,0)+" USDT)</b>. Отрицательным значение не бывает. Комиссия входа 1% в расчёт не включена.";
+}
 function renderStats(m){
   document.getElementById("stats").innerHTML=
     st("Минимум к возврату",'<span style="color:var(--red)">'+grp(m.floor,0)+'</span>',
        "вернётся при любом падении биткойна — даже при −50%","")+
     st("Ваша доля в росте биткойна",'<span class="green">'+grp(m.eff*100,1)+'%</span>',
-       "каждый 1% роста биткойна сверх точки выхода в плюс добавляет "+grp(m.eff,2).replace(".",",")+"% к вкладу","accent")+
-    st("Выход в плюс при росте",'<span class="green">'+pct(m.BE,1)+'</span>',"","");
+       "каждый 1% роста биткойна сверх точки выхода в плюс добавляет "+grp(m.eff,2).replace(".",",")+"% к вкладу","accent");
   function st(k,v,sub,cls){return '<div class="stat '+cls+'"><div class="stat-k">'+k+'</div><div class="stat-v">'+v+'</div>'+(sub?'<div class="stat-sub">'+sub+'</div>':'')+'</div>';}
 }
 function renderChart(m){
@@ -251,51 +296,25 @@ function renderChart(m){
   svg+='<line x1="'+padL+'" y1="'+Y(-m.X)+'" x2="'+X(0)+'" y2="'+Y(-m.X)+'" stroke="#0E9F6E" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>';
   svg+='<text x="'+(padL+6)+'" y="'+(Y(-m.X)-7)+'" font-size="11" font-weight="700" fill="#0B7E58">минимум '+grp(m.floor,0)+' USDT</text>';
   svg+='<polyline points="'+mine.join(" ")+'" fill="none" stroke="#0E9F6E" stroke-width="3.4" stroke-linejoin="round"/>';
-  /* точка выхода в плюс */
-  var bx=X(m.BE);
-  svg+='<line x1="'+bx+'" y1="'+padT+'" x2="'+bx+'" y2="'+(H-padB)+'" stroke="#0B7E58" stroke-width="1.4" stroke-dasharray="4 4"/>';
-  svg+='<circle cx="'+bx+'" cy="'+Y(0)+'" r="4.5" fill="#0B7E58"/>';
-  svg+='<text x="'+(bx+7)+'" y="'+(padT+13)+'" font-size="11.5" font-weight="700" fill="#0B7E58">выход в плюс '+pct(m.BE,1)+'</text>';
   svg+='</svg>';
   document.getElementById("chart").innerHTML=svg;
-  document.getElementById("beLeg").textContent="выход в плюс: биткойн ≥ "+pct(m.BE,1);
   document.getElementById("chartNote").innerHTML=
     "Слева видно главное: как бы глубоко ни упал биткойн, вы получаете не меньше <b>"+grp(m.floor,0)+" USDT</b> — в отличие от серой линии, где падение забирает всё. Справа — цена этой защиты: вы получаете "+grp(m.eff*100,1)+"% роста, а не весь рост.";
 }
-function renderScen(m){
-  document.getElementById("tabH").innerHTML="Сценарии · вклад "+grp(S.P,0)+" USDT на "+m.d+" дней · риск "+S.X+"%";
-  var list=[-0.4,-0.2,-0.05,0,{be:1},0.1,0.25,0.5];
-  document.getElementById("scenBody").innerHTML=list.map(function(it){
-    var be=(typeof it==="object"), R=be?m.BE:it, n=m.net(R), pay=S.P*(1+n);
-    var why=be?"вы вернули вложенное полностью — дальше только прибыль"
-      :(R<0?"биткойн упал — работает защита вклада"
-      :(R===0?"биткойн на месте — работает защита вклада"
-      :"биткойн вырос: ваша доля "+grp(m.eff*100,1)+"% от роста"));
-    return "<tr class='"+(be?"be":(R===0?"zero":""))+"'><td class='mono "+(R>0?"up":(R<0?"dn":"flat"))+"'>"+(be?("выход в плюс · "+pct(m.BE,1)):pct(R,0))+"</td>"+
-      "<td class='r mono'>"+grp(pay,0)+"</td>"+
-      "<td class='r mono "+(n>0?"up":(n<0?"dn":"flat"))+"'>"+pct(n,2)+"</td>"+
-      "<td style='color:#697586;font-size:13px'>"+why+"</td></tr>";}).join("");
-}
-function renderSummary(m){
-  document.getElementById("summary").innerHTML=
-    "<b>Коротко:</b> вы вкладываете "+grp(S.P,0)+" USDT на "+m.d+" дней. В худшем случае получите <b>"+grp(m.floor,0)+" USDT</b> — это ваш риск "+S.X+"%, и он не увеличится, как бы ни упал биткойн. Если биткойн вырастет больше чем на "+pct(m.BE,1)+", вы в плюсе и забираете "+grp(m.eff*100,1)+"% его роста: например, при росте на 30% вернётся <b>"+grp(S.P*(1+m.net(0.3)),0)+" USDT</b>.";
-}
-function renderParams(){
-  var g=document.getElementById("asGrid");g.innerHTML="";
-  var defs=[
-    {l:"Биткойн сейчас",u:"USDT",get:function(){return grp(S.spot,0);},set:function(v){S.spot=v;}},
-    {l:"Доходность USDT",u:"% год.",get:function(){return S.yieldPct;},set:function(v){S.yieldPct=v;}},
-    {l:"Издержки биржи",u:"%",get:function(){return S.slipPct;},set:function(v){S.slipPct=v;}}];
-  TERMS.forEach(function(t){defs.push({l:"Дней · "+t.label,u:"дн",slot:t.id,fld:"days"});});
-  TERMS.forEach(function(t){defs.push({l:"Опцион · "+t.label,u:"% цены BTC",slot:t.id,fld:"q"});});
-  defs.forEach(function(f){
-    var el=document.createElement("div");el.className="as";
-    el.innerHTML='<label>'+f.l+' <span class="u">'+f.u+'</span></label><input value="'+(f.slot?S[f.fld][f.slot]:f.get())+'" inputmode="decimal"/>';
-    g.appendChild(el);
-    el.querySelector("input").addEventListener("input",function(e){
-      var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
-      if(isNaN(v)||v<=0)return; if(f.slot)S[f.fld][f.slot]=v; else f.set(v); refresh();});
-  });
+function renderGrowth(m){
+  var R=S.R/100, n=m.net(R), pay=S.P*(1+n), eps=0.0001;
+  document.getElementById("gBtc").textContent=(S.R>0?"+":(S.R<0?"−":""))+Math.abs(S.R)+"%";
+  document.getElementById("gPrice").textContent="≈ "+grp(S.spot*(1+R),0)+" USDT за монету";
+  var v=document.getElementById("gPct");
+  v.className="g-v "+(n>eps?"pos":(n<-eps?"neg":"zero"));
+  v.textContent=(Math.abs(n)<eps?"0,00%":pct(n,2));
+  document.getElementById("gSum").textContent=grp(pay,0);
+  var note;
+  if(R<=0) note="Биткойн упал или стоит на месте — работает защита: вы получаете свой минимум <b>"+grp(m.floor,0)+" USDT</b>.";
+  else if(n<-eps) note="Биткойн растёт, но пока не настолько, чтобы перекрыть стоимость защиты. Потяните ползунок правее.";
+  else if(n<=eps) note="Вы вернули вложенное полностью — дальше начинается прибыль.";
+  else note="Вы в плюсе: из роста биткойна вам достаётся <b>"+grp(m.eff*100,1)+"%</b> — это <b>+"+grp(pay-S.P,0)+" USDT</b> сверх вклада.";
+  document.getElementById("gNote").innerHTML=note;
 }
 function renderBadge(){
   var b=document.getElementById("dataBadge");
@@ -313,7 +332,7 @@ function applyMarket(spot,res,txt){
     S.q[r.slot]=Math.round(r.mark*100)/100;
   });
   LIVE.on=true; LIVE.txt=txt;
-  renderParams(); refresh();
+  refresh();
 }
 /* котировки: биржа Deribit -> ежедневный снапшот market.json -> значения по умолчанию */
 function fetchLive(){
@@ -356,22 +375,25 @@ function fetchLive(){
 function fetchSnapshot(){
   fetch("market.json?ts="+Date.now()).then(function(r){if(!r.ok)throw new Error("nf");return r.json();})
   .then(function(mj){
-    var res=Object.keys(mj.slots).map(function(slot){
+    var known={}; TERMS.forEach(function(x){known[x.id]=1;});
+    var res=Object.keys(mj.slots).filter(function(slot){return known[slot];}).map(function(slot){
       return {slot:slot, ts:mj.slots[slot].expiry_ts, mark:mj.slots[slot].mark_pct};});
+    if(!res.length)throw new Error("slots");   /* снапшот старого формата — игнорируем */
     applyMarket(mj.spot,res,"котировки на "+dmy(mj.updated));
   })
   .catch(function(){ LIVE.on=false; renderBadge(); });
 }
 function refresh(){
   var m=calc();
-  renderAmts();renderTerms();renderRisk(m);renderStats(m);renderChart(m);renderScen(m);renderSummary(m);renderBadge();
+  renderAmts();renderTerms();renderRisk(m);renderGrowth(m);renderStats(m);renderChart(m);renderPrisk(m);renderBadge();
 }
 document.getElementById("principal").addEventListener("input",function(e){
   var v=parseFloat(String(e.target.value).replace(/\s/g,"").replace(",","."));
   if(!isNaN(v)&&v>0){S.P=v;refresh();}});
 document.getElementById("principal").addEventListener("blur",function(e){e.target.value=grp(S.P,0);});
-document.getElementById("risk").addEventListener("input",function(e){S.X=parseInt(e.target.value,10);refresh();});
-renderParams();refresh();fetchLive();
+document.getElementById("risk").addEventListener("input",function(e){S.X=parseFloat(e.target.value);refresh();});
+document.getElementById("growth").addEventListener("input",function(e){S.R=parseInt(e.target.value,10);refresh();});
+refresh();fetchLive();
 </script>
 </body>
 </html>
